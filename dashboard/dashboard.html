@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>panH - Privacy & Anonymity Network Hub</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="../icons/icon48.png" alt="panH Logo" class="brand-logo">
+        <div class="brand-text">
+          <h1 class="brand-title">panH</h1>
+          <span class="brand-sub">Privacy Hub</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-tab="overview">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="9" rx="1" />
+            <rect x="14" y="3" width="7" height="5" rx="1" />
+            <rect x="14" y="12" width="7" height="9" rx="1" />
+            <rect x="3" y="16" width="7" height="5" rx="1" />
+          </svg>
+          <span>Overview</span>
+        </button>
+
+        <button class="nav-item" data-tab="trackers">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <span>Trackers</span>
+          <span class="nav-badge" id="navSuspectsBadge">7</span>
+        </button>
+
+        <button class="nav-item" data-tab="search">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <span>Search</span>
+        </button>
+
+        <button class="nav-item" data-tab="email">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+            <polyline points="22,6 12,13 2,6" />
+          </svg>
+          <span>Email</span>
+        </button>
+
+        <button class="nav-item" data-tab="advisor">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <span>Advisor</span>
+          <span class="ai-spark-pill">AI</span>
+        </button>
+
+        <button class="nav-item" data-tab="settings">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+          <span>Settings</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="protection-pill">
+          <span class="live-pulse"></span>
+          <span>Shields Active</span>
+        </div>
+        <p class="version-label">v1.0.0 • Manifest V3</p>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="topbar">
+        <div class="topbar-title-group">
+          <h2 class="view-title" id="pageTitle">Overview</h2>
+          <p class="view-subtitle" id="pageSubtitle">Real-time privacy telemetry and protection telemetry</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn-refresh" id="btnRefreshData" title="Refresh Telemetry">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon">
+              <path d="M23 4v6h-6" />
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+            </svg>
+            <span>Sync</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- TAB 1: OVERVIEW -->
+      <section class="tab-panel active" id="tab-overview">
+        <!-- 3 Stat Cards Matching Page 2 Design -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-number stat-trackers" id="statTrackersBlocked">1,284</span>
+            <span class="stat-label">Trackers blocked</span>
+            <div class="stat-trend positive">
+              <span>&uparrow; 14% vs yesterday</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <span class="stat-number stat-ads" id="statAdsBlocked">3,902</span>
+            <span class="stat-label">Ads blocked</span>
+            <div class="stat-trend positive">
+              <span>&uparrow; 28% data saved</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <span class="stat-number stat-suspects" id="statNewSuspects">7</span>
+            <span class="stat-label">New suspects</span>
+            <div class="stat-trend alert">
+              <span>Requires confirmation</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Chart Section -->
+        <div class="card chart-card">
+          <div class="card-header">
+            <div class="header-left">
+              <h3 class="card-title">Interception Activity</h3>
+              <p class="card-desc">Volume of blocked trackers and ads across recent sessions</p>
+            </div>
+            <div class="chart-legend">
+              <span class="legend-item"><span class="legend-color legend-ads"></span> Ads</span>
+              <span class="legend-item"><span class="legend-color legend-trackers"></span> Trackers</span>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="activityChart" width="800" height="180"></canvas>
+          </div>
+        </div>
+
+        <!-- Live Activity Log -->
+        <div class="card log-card">
+          <div class="card-header">
+            <div class="header-left">
+              <h3 class="card-title">Live Protection Feed</h3>
+              <p class="card-desc">Transparent explanations for every blocked or shielded event</p>
+            </div>
+            <div class="log-filters">
+              <input type="text" class="search-input" id="logSearchInput" placeholder="Filter domain or reason...">
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="blocked">Blocked</button>
+              <button class="filter-btn" data-filter="suspected">Suspected</button>
+              <button class="filter-btn" data-filter="shielded">Shielded</button>
+            </div>
+          </div>
+
+          <div class="live-log-list" id="liveLogList">
+            <!-- Sample Rows matching spec -->
+            <div class="log-item">
+              <span class="log-badge badge-blocked">Blocked</span>
+              <div class="log-details">
+                <span class="log-text"><strong>pixel.tracker-a.io</strong> on shop.com: cross-site ID</span>
+                <span class="log-meta">45s ago • 1x1 image beacon</span>
+              </div>
+            </div>
+
+            <div class="log-item">
+              <span class="log-badge badge-suspected">Suspected</span>
+              <div class="log-details">
+                <span class="log-text"><strong>cdn-metrics.net</strong> seen on 18 sites: review</span>
+                <span class="log-meta">2m ago • Behavioral pattern score 85</span>
+              </div>
+            </div>
+
+            <div class="log-item">
+              <span class="log-badge badge-shielded">Shielded</span>
+              <div class="log-details">
+                <span class="log-text"><strong>canvas fingerprint request</strong> on blog.org</span>
+                <span class="log-meta">4m ago • Injected micro-noise</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: TRACKERS & PATTERN SCORING -->
+      <section class="tab-panel" id="tab-trackers">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Behavioral Pattern Blocking & Suspects</h3>
+              <p class="card-desc">panH flags unknown domains seen across multiple unrelated sites sending background beacons.</p>
+            </div>
+          </div>
+
+          <div class="suspects-list" id="suspectsList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Active Filter Rulesets (declarativeNetRequest)</h3>
+              <p class="card-desc">High-speed, native browser-level blocking rules</p>
+            </div>
+          </div>
+          <div class="ruleset-status-grid">
+            <div class="ruleset-box">
+              <div class="ruleset-top">
+                <span class="ruleset-name">Ruleset: Advertising Networks</span>
+                <span class="badge-status-on">Active</span>
+              </div>
+              <p class="ruleset-desc">43 top-level ad networks (DoubleClick, AppNexus, Criteo, Rubicon, Taboola)</p>
+            </div>
+            <div class="ruleset-box">
+              <div class="ruleset-top">
+                <span class="ruleset-name">Ruleset: Behavioral Trackers</span>
+                <span class="badge-status-on">Active</span>
+              </div>
+              <p class="ruleset-desc">38 tracking vendors (Google Analytics, Hotjar, FullStory, Meta Pixel, Segment)</p>
+            </div>
+            <div class="ruleset-box">
+              <div class="ruleset-top">
+                <span class="ruleset-name">Ruleset: Tracking URL Stripper</span>
+                <span class="badge-status-on">Active</span>
+              </div>
+              <p class="ruleset-desc">Automatic query parameter cleaner for utm, gclid, fbclid, msclkid</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: SECURE SEARCH -->
+      <section class="tab-panel" id="tab-search">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Secure & Faster Search Engine</h3>
+              <p class="card-desc">Search without search query profiling, referrer leakage, or commercial tracking parameters.</p>
+            </div>
+          </div>
+
+          <!-- Interactive Search Bar -->
+          <div class="search-sandbox">
+            <div class="search-input-group">
+              <input type="text" id="privateSearchInput" placeholder="Type a search query to execute privately...">
+              <button class="btn-primary" id="btnRunPrivateSearch">Search Privately</button>
+            </div>
+            <div class="search-options-row">
+              <label class="radio-label">
+                <input type="radio" name="searchProvider" value="duckduckgo" checked> DuckDuckGo
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="searchProvider" value="brave"> Brave Search
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="searchProvider" value="startpage"> Startpage
+              </label>
+            </div>
+          </div>
+
+          <div class="toggle-group mt-4">
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>Strip Campaign Parameters (UTM, GCLID, FBCLID)</h4>
+                <p>Removes marketing tracking parameters when you open outbound links.</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="settingStripParams" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>Referrer Stripping</h4>
+                <p>Prevents destination websites from learning your prior search queries or originating pages.</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="settingStripReferrer" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: EMAIL PRIVACY -->
+      <section class="tab-panel" id="tab-email">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Webmail Tracking Protection</h3>
+              <p class="card-desc">Active protection for Gmail, Outlook, and Yahoo Webmail</p>
+            </div>
+          </div>
+
+          <div class="email-stats-row">
+            <div class="mini-stat">
+              <span class="mini-number" id="emailPixelsCount">42</span>
+              <span class="mini-label">Tracking Pixels Neutralized</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-number" id="emailLinksCount">118</span>
+              <span class="mini-label">Tracked Email Links Unwrapped</span>
+            </div>
+          </div>
+
+          <!-- Email Alias Generator -->
+          <div class="alias-generator-box mt-4">
+            <h4>Email Privacy Alias Generator</h4>
+            <p>Generate privacy-preserving forwarding tags to prevent marketing databases from linking your email address.</p>
+            <div class="alias-controls">
+              <input type="text" id="generatedAliasInput" readonly value="user+shield_8f2a@hub.panh.net">
+              <button class="btn-secondary" id="btnGenerateAlias">Generate New</button>
+              <button class="btn-primary" id="btnCopyAlias">Copy Alias</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: AI PRIVACY ADVISOR -->
+      <section class="tab-panel" id="tab-advisor">
+        <div class="advisor-layout">
+          <!-- Chat Section -->
+          <div class="card advisor-chat-card">
+            <div class="card-header">
+              <div class="header-left">
+                <h3 class="card-title">AI Privacy Advisor</h3>
+                <p class="card-desc">Ask questions about blocked trackers, site risks, and identity protection.</p>
+              </div>
+              <span class="privacy-badge">Zero Page Data Shared</span>
+            </div>
+
+            <!-- Quick prompt chips -->
+            <div class="prompt-chips">
+              <button class="chip-btn" data-query="Why was pixel.tracker-a.io blocked?">Why was pixel.tracker-a.io blocked?</button>
+              <button class="chip-btn" data-query="How does Fingerprint Shield protect my canvas?">How does Fingerprint Shield protect me?</button>
+              <button class="chip-btn" data-query="What is CNAME cloaking and how does panH detect it?">What is CNAME cloaking?</button>
+              <button class="chip-btn" data-query="How do email spy pixels work?">How do email spy pixels work?</button>
+            </div>
+
+            <div class="chat-history" id="chatHistory">
+              <div class="chat-bubble bot">
+                <div class="bubble-header">panH AI Advisor</div>
+                <div class="bubble-content">
+                  Hello! I'm your privacy assistant. I analyze what trackers are doing behind the scenes and explain it in plain language.
+                  <br><br>
+                  <em>Privacy Notice:</em> Under panH's Privacy-by-Design architecture, I only inspect domain names and categorization metrics—I never look at your page content, search text, or browsing history. What would you like to know?
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-input-bar">
+              <input type="text" id="chatInput" placeholder="Ask a privacy question (e.g., Why was adnet-x blocked?)...">
+              <button class="btn-primary" id="btnSendChat">Ask Advisor</button>
+            </div>
+          </div>
+
+          <!-- Rule-Based Advice Panel -->
+          <div class="card advisor-rules-card">
+            <h3 class="card-title mb-2">Live Site Advisor Tips</h3>
+            <div class="tips-container" id="tipsContainer">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: SETTINGS -->
+      <section class="tab-panel" id="tab-settings">
+        <div class="card">
+          <h3 class="card-title">Protection Modules</h3>
+          <div class="toggle-group mt-3">
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>Master Privacy Guardian</h4>
+                <p>Toggle all panH protection layers globally</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="settingMaster" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>Ads Blocker (Network & Cosmetic)</h4>
+                <p>Blocks ad network requests and removes empty sponsored placeholders</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="settingAds" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>Third-Party Tracker Blocker</h4>
+                <p>Intersects analytics scripts, session recorders, and cross-site beacons</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="settingTrackers" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>Browser Fingerprint Shield</h4>
+                <p>Injects micro-noise into Canvas, WebGL, and AudioContext APIs</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="settingFingerprint" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <h3 class="card-title">AI Advisor Settings</h3>
+          <p class="card-desc">panH includes a built-in smart local reasoning engine. You can optionally connect Google Gemini API for cloud intelligence.</p>
+          <div class="settings-form mt-3">
+            <label class="form-label" for="geminiApiKey">Google Gemini API Key (Optional)</label>
+            <div class="api-key-group">
+              <input type="password" id="geminiApiKey" class="form-input" placeholder="AIzaSy...">
+              <button class="btn-secondary" id="btnSaveApiKey">Save Key</button>
+            </div>
+            <span class="form-hint" id="apiKeyStatus">Default: High-speed local privacy intelligence engine</span>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <h3 class="card-title">Data & Maintenance</h3>
+          <div class="actions-row mt-3">
+            <button class="btn-secondary" id="btnExportData">Export Privacy Logs (JSON)</button>
+            <button class="btn-danger" id="btnClearLogs">Clear Log Feed</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

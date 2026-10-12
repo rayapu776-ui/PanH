@@ -1,0 +1,39 @@
+[
+  {
+    "id": 5001,
+    "priority": 2,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "transform": {
+          "queryTransform": {
+            "removeParams": [
+              "utm_source",
+              "utm_medium",
+              "utm_campaign",
+              "utm_term",
+              "utm_content",
+              "utm_id",
+              "gclid",
+              "fbclid",
+              "msclkid",
+              "mc_eid",
+              "dclid",
+              "_hsenc",
+              "_hsmi",
+              "vero_id",
+              "yclid"
+            ]
+          }
+        }
+      }
+    },
+    "condition": {
+      "urlFilter": "|http*",
+      "resourceTypes": [
+        "main_frame",
+        "sub_frame"
+      ]
+    }
+  }
+]

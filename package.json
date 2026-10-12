@@ -1,0 +1,20 @@
+{
+  "name": "panh-extension",
+  "version": "1.0.0",
+  "description": "Privacy & Anonymity Network Hub - Browser Extension (Manifest V3)",
+  "main": "background/service-worker.js",
+  "scripts": {
+    "test": "node test/validate.js"
+  },
+  "keywords": [
+    "privacy",
+    "adblocker",
+    "tracker-blocker",
+    "fingerprint-shield",
+    "secure-search",
+    "ai-advisor",
+    "manifest-v3"
+  ],
+  "author": "VijetaX (Apu Ray, Nancy, Prottoy Sarker, Hasontika Roy - Sharda University)",
+  "license": "MIT"
+}
