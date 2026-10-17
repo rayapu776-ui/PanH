@@ -178,3 +178,4 @@ Provide a clear, plain-language answer explaining what happened and what the use
   // General recommendation
   return `On ${domain}, panH has blocked ${trackers} tracking scripts and ${ads} ad units. Your device fingerprint is masked, and tracking links are stripped. You don't need to take any extra steps—your session is shielded! Feel free to ask about any specific tracker or privacy setting.`;
 }
+

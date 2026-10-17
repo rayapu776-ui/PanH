@@ -1,8 +1,10 @@
 /**
- * panH - Popup Controller
+ * panH - Popup Controller (Enhanced Cross-Browser Edition)
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
+  const api = window.panhApi || (typeof browser !== 'undefined' ? browser : chrome);
+
   const siteScoreValEl = document.getElementById('siteScoreValue');
   const siteScoreRatingEl = document.getElementById('siteScoreRating');
   const siteHostnameEl = document.getElementById('siteHostname');
@@ -14,33 +16,40 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const toggleFingerprint = document.getElementById('toggleFingerprint');
   const toggleSecureSearch = document.getElementById('toggleSecureSearch');
+  const toggleAIGuardian = document.getElementById('toggleAIGuardian');
 
   const whyBlockedTextEl = document.getElementById('whyBlockedText');
   const btnAskAdvisor = document.getElementById('btnAskAdvisor');
+  const btnQuickFix = document.getElementById('btnQuickFix');
+
   const advisorDrawer = document.getElementById('advisorDrawer');
   const btnCloseDrawer = document.getElementById('btnCloseDrawer');
   const drawerAnswer = document.getElementById('drawerAnswer');
+  const popupAdvisorInput = document.getElementById('popupAdvisorInput');
+  const btnPopupAdvisorSend = document.getElementById('btnPopupAdvisorSend');
+  const drawerModelPill = document.getElementById('drawerModelPill');
 
   const btnOpenDashboard = document.getElementById('btnOpenDashboard');
 
   let currentDomain = 'news-site.com';
   let currentSiteData = null;
 
-  // 1. Identify active tab domain
+  // 1. Identify active tab domain across any browser
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const tabs = await api.tabs.query({ active: true, currentWindow: true });
+    const tab = tabs[0];
     if (tab && tab.url && tab.url.startsWith('http')) {
       const url = new URL(tab.url);
       currentDomain = url.hostname;
     }
   } catch (e) {
-    console.debug('Using default demo domain:', e);
+    console.debug('[panH] Using fallback domain:', e);
   }
 
   siteHostnameEl.textContent = currentDomain;
 
   // 2. Fetch site report and settings from Service Worker
-  chrome.runtime.sendMessage({ type: 'GET_SITE_REPORT', domain: currentDomain }, (response) => {
+  api.runtime.sendMessage({ type: 'GET_SITE_REPORT', domain: currentDomain }).then((response) => {
     if (!response || !response.siteData) return;
 
     currentSiteData = response.siteData;
@@ -78,6 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Populate toggles
     toggleFingerprint.checked = settings.fingerprintShield !== false;
     toggleSecureSearch.checked = settings.secureSearch === true;
+    if (toggleAIGuardian) toggleAIGuardian.checked = settings.aiThreatDetection !== false;
 
     // Populate Why Blocked explanation banner
     if (currentSiteData.recentDomains && currentSiteData.recentDomains.length > 0) {
@@ -86,44 +96,90 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       whyBlockedTextEl.textContent = `adnet-x.com tried to follow you across sites. Ask advisor`;
     }
+
+    if (settings.geminiApiKey) {
+      drawerModelPill.textContent = 'Gemini AI';
+      drawerModelPill.style.background = 'rgba(16, 185, 129, 0.2)';
+      drawerModelPill.style.color = '#34d399';
+    }
   });
 
-  // 3. Toggle Handlers
+  // 3. Toggle Handlers with immediate persistence
   toggleFingerprint.addEventListener('change', () => {
-    chrome.runtime.sendMessage({
+    api.runtime.sendMessage({
       type: 'UPDATE_SETTINGS',
       settings: { fingerprintShield: toggleFingerprint.checked }
     });
   });
 
   toggleSecureSearch.addEventListener('change', () => {
-    chrome.runtime.sendMessage({
+    api.runtime.sendMessage({
       type: 'UPDATE_SETTINGS',
       settings: { secureSearch: toggleSecureSearch.checked }
     });
   });
 
-  // 4. Quick AI Advisor Drawer
-  btnAskAdvisor.addEventListener('click', () => {
-    advisorDrawer.style.display = 'flex';
-    drawerAnswer.textContent = 'Analyzing blocked requests with panH Privacy Advisor...';
+  if (toggleAIGuardian) {
+    toggleAIGuardian.addEventListener('change', () => {
+      api.runtime.sendMessage({
+        type: 'UPDATE_SETTINGS',
+        settings: { aiThreatDetection: toggleAIGuardian.checked }
+      });
+    });
+  }
 
-    const question = `Why was the top tracking request blocked on ${currentDomain}?`;
-    chrome.runtime.sendMessage({
+  // 4. Quick AI 1-Click Fix
+  btnQuickFix?.addEventListener('click', () => {
+    api.runtime.sendMessage({
+      type: 'EXECUTE_AI_REMEDIATION',
+      action: 'ENABLE_STRICT_SHIELD'
+    }).then(() => {
+      toggleFingerprint.checked = true;
+      toggleSecureSearch.checked = true;
+      btnQuickFix.textContent = '✓ Shielded';
+      setTimeout(() => { btnQuickFix.textContent = '1-Click AI Fix'; }, 2000);
+    });
+  });
+
+  // 5. Quick AI Advisor Drawer
+  function askAdvisorInPopup(question) {
+    advisorDrawer.style.display = 'flex';
+    drawerAnswer.innerHTML = '<em>Consulting panH AI Advisor...</em>';
+
+    api.runtime.sendMessage({
       type: 'ASK_AI_ADVISOR',
       question,
       siteReport: currentSiteData || { domain: currentDomain, trackersBlocked: 23, adsBlocked: 41 }
-    }, (res) => {
-      drawerAnswer.textContent = res?.answer || 'adnet-x.com was blocked because it tried to correlate your reading identity across multiple publisher networks using third-party tracking cookies.';
+    }).then((res) => {
+      const formatted = (res?.answer || 'Ad trackers attempt to correlate your identity across websites. panH shields your browser footprint.')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+      drawerAnswer.innerHTML = formatted;
     });
+  }
+
+  btnAskAdvisor.addEventListener('click', () => {
+    askAdvisorInPopup(`Why was the top tracking request blocked on ${currentDomain}?`);
+  });
+
+  btnPopupAdvisorSend?.addEventListener('click', () => {
+    const q = popupAdvisorInput.value.trim();
+    if (q) {
+      askAdvisorInPopup(q);
+      popupAdvisorInput.value = '';
+    }
+  });
+
+  popupAdvisorInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') btnPopupAdvisorSend.click();
   });
 
   btnCloseDrawer.addEventListener('click', () => {
     advisorDrawer.style.display = 'none';
   });
 
-  // 5. Open Dashboard Button
+  // 6. Open Dashboard Button
   btnOpenDashboard.addEventListener('click', () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL('dashboard/dashboard.html') });
+    api.tabs.create({ url: api.runtime.getURL('dashboard/dashboard.html') });
   });
 });

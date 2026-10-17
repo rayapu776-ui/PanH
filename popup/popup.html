@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>panH - Privacy Guardian</title>
   <link rel="stylesheet" href="popup.css">
+  <script src="../shared/panh-polyfill.js"></script>
 </head>
 <body>
   <div class="popup-container">
@@ -12,11 +13,14 @@
     <header class="header">
       <div class="brand">
         <img src="../icons/icon32.png" alt="panH Logo" class="brand-icon">
-        <span class="brand-name">panH</span>
+        <div class="brand-titles">
+          <span class="brand-name">panH</span>
+          <span class="brand-edition">AI Edition</span>
+        </div>
       </div>
       <div class="status-badge" id="shieldStatusBadge">
         <span class="status-dot"></span>
-        <span class="status-text">Active</span>
+        <span class="status-text">AI Active</span>
       </div>
     </header>
 
@@ -32,7 +36,10 @@
         </div>
       </div>
       <div class="score-info">
-        <h2 class="score-rating" id="siteScoreRating">Good protection</h2>
+        <div class="rating-badge-row">
+          <h2 class="score-rating" id="siteScoreRating">Good protection</h2>
+          <span class="ai-shield-tag">Shielded</span>
+        </div>
         <p class="site-hostname" id="siteHostname">news-site.com</p>
       </div>
     </section>
@@ -75,7 +82,10 @@
     <!-- Quick Toggles -->
     <section class="toggles-section">
       <div class="toggle-row">
-        <span class="toggle-label">Fingerprint shield</span>
+        <div class="toggle-info-col">
+          <span class="toggle-label">Fingerprint shield</span>
+          <span class="toggle-sub">Spoofs Canvas & WebGL</span>
+        </div>
         <label class="switch">
           <input type="checkbox" id="toggleFingerprint" checked>
           <span class="slider round"></span>
@@ -83,9 +93,23 @@
       </div>
 
       <div class="toggle-row">
-        <span class="toggle-label">Secure search</span>
+        <div class="toggle-info-col">
+          <span class="toggle-label">Secure search</span>
+          <span class="toggle-sub">Purges UTM & click IDs</span>
+        </div>
         <label class="switch">
           <input type="checkbox" id="toggleSecureSearch">
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info-col">
+          <span class="toggle-label">AI Threat Guardian</span>
+          <span class="toggle-sub">Scores unknown trackers</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggleAIGuardian" checked>
           <span class="slider round"></span>
         </label>
       </div>
@@ -99,19 +123,30 @@
           <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3m0 4h.01" />
         </svg>
         <strong>Why blocked?</strong>
+        <span class="ai-sparkle">✨ AI</span>
       </div>
       <p class="why-blocked-text" id="whyBlockedText">adnet-x.com tried to follow you across sites. Ask advisor</p>
-      <button class="why-advisor-link" id="btnAskAdvisor">Ask AI Advisor &rarr;</button>
+      <div class="why-actions-row">
+        <button class="why-advisor-link" id="btnAskAdvisor">Ask AI Advisor &rarr;</button>
+        <button class="btn-quick-fix" id="btnQuickFix" title="Apply recommended AI protections">1-Click AI Fix</button>
+      </div>
     </div>
 
     <!-- Quick AI Advisor Drawer (Expandable) -->
     <div class="advisor-drawer" id="advisorDrawer" style="display: none;">
       <div class="drawer-header">
-        <span>panH AI Advisor</span>
-        <button class="drawer-close" id="btnCloseDrawer">&times;</button>
+        <div class="drawer-title-group">
+          <span>panH AI Privacy Advisor</span>
+          <span class="drawer-model-pill" id="drawerModelPill">Local Engine</span>
+        </div>
+        <button class="drawer-close" id="btnCloseDrawer" title="Close">&times;</button>
       </div>
       <div class="drawer-content" id="drawerAnswer">
-        Loading advisor analysis...
+        Loading real-time privacy analysis...
+      </div>
+      <div class="drawer-input-row">
+        <input type="text" id="popupAdvisorInput" placeholder="Ask about this site..." class="drawer-input">
+        <button id="btnPopupAdvisorSend" class="drawer-send-btn">Ask</button>
       </div>
     </div>
 
@@ -119,10 +154,10 @@
     <footer class="footer">
       <button class="btn-dashboard" id="btnOpenDashboard">
         <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="7" height="9" />
-          <rect x="14" y="3" width="7" height="5" />
-          <rect x="14" y="12" width="7" height="9" />
-          <rect x="3" y="16" width="7" height="5" />
+          <rect x="3" y="3" width="7" height="9" rx="1" />
+          <rect x="14" y="3" width="7" height="5" rx="1" />
+          <rect x="14" y="12" width="7" height="9" rx="1" />
+          <rect x="3" y="16" width="7" height="5" rx="1" />
         </svg>
         <span>Open Full Dashboard</span>
       </button>

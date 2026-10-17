@@ -1,11 +1,13 @@
 /**
  * panH - First-Party Tracking & CNAME Cloaking Detector
  * Inspects first-party cookies for high-entropy persistent IDs
- * and monitors disguised telemetry subdomains.
+ * and bridges fingerprint probe events to the background privacy engine.
  */
 
 (function () {
   'use strict';
+
+  const api = (typeof browser !== 'undefined' && browser.runtime) ? browser : chrome;
 
   const SUSPICIOUS_COOKIE_NAMES = [
     '_ga', '_gid', '_fbp', '_fbc', 'ajs_user_id', 'ajs_anonymous_id',
@@ -23,7 +25,6 @@
       if (!rawCookies) return;
 
       const pairs = rawCookies.split(';');
-      let foundTrackers = 0;
 
       for (const pair of pairs) {
         const parts = pair.trim().split('=');
@@ -34,7 +35,6 @@
         let isTracker = false;
         let detail = '';
 
-        // Check against known tracking cookie prefixes
         for (const suspect of SUSPICIOUS_COOKIE_NAMES) {
           if (name.toLowerCase().startsWith(suspect)) {
             isTracker = true;
@@ -43,16 +43,14 @@
           }
         }
 
-        // Check if value is a UUID or high entropy tracking hash
         if (!isTracker && (ID_REGEX.test(val) || HIGH_ENTROPY_HEX.test(val))) {
           isTracker = true;
           detail = `High-entropy persistent UUID token in '${name}'`;
         }
 
         if (isTracker) {
-          foundTrackers++;
           try {
-            chrome.runtime?.sendMessage?.({
+            api.runtime?.sendMessage?.({
               type: 'REPORT_FIRST_PARTY_TRACKER',
               cookieName: name,
               details: detail,
@@ -69,13 +67,11 @@
   // Listen for fingerprint probe notifications dispatched from MAIN world script
   window.addEventListener('__panH_probe_detected__', (e) => {
     try {
-      if (chrome?.runtime?.sendMessage) {
-        chrome.runtime.sendMessage({
-          type: 'REPORT_FINGERPRINT_PROBE',
-          probeType: e.detail?.probeType || 'canvas',
-          siteDomain: window.location.hostname
-        });
-      }
+      api.runtime?.sendMessage?.({
+        type: 'REPORT_FINGERPRINT_PROBE',
+        probeType: e.detail?.probeType || 'canvas',
+        siteDomain: window.location.hostname
+      });
     } catch (err) {}
   });
 

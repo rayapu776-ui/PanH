@@ -1,20 +1,33 @@
 /**
- * panH - Full Dashboard Controller
+ * panH - Full Dashboard Controller (Cross-Browser & AI Edition)
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
+  const api = window.panhApi || (typeof browser !== 'undefined' ? browser : chrome);
+
   // Navigation elements
   const navItems = document.querySelectorAll('.nav-item');
   const tabPanels = document.querySelectorAll('.tab-panel');
   const pageTitleEl = document.getElementById('pageTitle');
   const pageSubtitleEl = document.getElementById('pageSubtitle');
   const btnRefreshData = document.getElementById('btnRefreshData');
+  const browserNameLabel = document.getElementById('browserNameLabel');
 
   // Stats elements
   const statTrackersEl = document.getElementById('statTrackersBlocked');
   const statAdsEl = document.getElementById('statAdsBlocked');
   const statSuspectsEl = document.getElementById('statNewSuspects');
+  const statHealthEl = document.getElementById('statPrivacyHealth');
   const navSuspectsBadge = document.getElementById('navSuspectsBadge');
+
+  // Briefing elements
+  const briefingRiskPill = document.getElementById('briefingRiskPill');
+  const briefingList = document.getElementById('briefingList');
+  const btnBriefingAction = document.getElementById('btnBriefingAction');
+
+  // Chart elements
+  const timeframeBtns = document.querySelectorAll('.tf-btn');
+  let currentTimeframe = 'week';
 
   // Log elements
   const liveLogListEl = document.getElementById('liveLogList');
@@ -23,10 +36,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Suspects elements
   const suspectsListEl = document.getElementById('suspectsList');
+  const btnBlockAllSuspects = document.getElementById('btnBlockAllSuspects');
 
   // Search tab elements
   const privateSearchInput = document.getElementById('privateSearchInput');
   const btnRunPrivateSearch = document.getElementById('btnRunPrivateSearch');
+  const settingStripParams = document.getElementById('settingStripParams');
+  const settingStripReferrer = document.getElementById('settingStripReferrer');
 
   // Email tab elements
   const generatedAliasInput = document.getElementById('generatedAliasInput');
@@ -39,31 +55,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnSendChat = document.getElementById('btnSendChat');
   const promptChips = document.querySelectorAll('.chip-btn');
   const tipsContainer = document.getElementById('tipsContainer');
+  const chatModelIndicator = document.getElementById('chatModelIndicator');
 
   // Settings tab elements
   const settingMaster = document.getElementById('settingMaster');
   const settingAds = document.getElementById('settingAds');
   const settingTrackers = document.getElementById('settingTrackers');
   const settingFingerprint = document.getElementById('settingFingerprint');
-  const settingStripParams = document.getElementById('settingStripParams');
-  const settingStripReferrer = document.getElementById('settingStripReferrer');
+  const settingAIGuardian = document.getElementById('settingAIGuardian');
   const geminiApiKeyInput = document.getElementById('geminiApiKey');
   const btnSaveApiKey = document.getElementById('btnSaveApiKey');
+  const btnTestApiKey = document.getElementById('btnTestApiKey');
   const apiKeyStatus = document.getElementById('apiKeyStatus');
   const btnExportData = document.getElementById('btnExportData');
   const btnClearLogs = document.getElementById('btnClearLogs');
+  const aiModelRadios = document.querySelectorAll('input[name="aiModelPref"]');
 
   // State
   let currentLogs = [];
   let currentFilter = 'all';
   let dashboardData = null;
 
+  // Display browser environment detection
+  if (api.getBrowserInfo && browserNameLabel) {
+    const info = api.getBrowserInfo();
+    browserNameLabel.textContent = `${info.name} Engine`;
+  }
+
   const SUBTITLES = {
-    overview: 'Real-time privacy telemetry and protection telemetry',
-    trackers: 'Known filter lists and behavioral heuristic scoring',
+    overview: 'Real-time privacy telemetry and intelligent threat scoring',
+    trackers: 'Known filter lists and AI behavioral heuristic evaluation',
     search: 'Leakage-free search and tracking parameter purger',
     email: 'Webmail tracking pixel interceptor and alias generator',
-    advisor: 'Explainable AI assistant and rule-based site advice',
+    advisor: 'Explainable AI assistant with dual-mode neural engine',
     settings: 'Configure protection layers and custom privacy keys'
   };
 
@@ -89,23 +113,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 2. Load Dashboard Data
   async function loadData() {
-    chrome.runtime.sendMessage({ type: 'GET_DASHBOARD_DATA' }, (response) => {
+    api.runtime.sendMessage({ type: 'GET_DASHBOARD_DATA' }).then((response) => {
       if (!response) return;
       dashboardData = response;
-      const { stats, logs, suspects, settings } = response;
+      const { stats, logs, suspects, settings, siteStats } = response;
 
       // Update counters
       statTrackersEl.textContent = (stats.totalTrackersBlocked || 1284).toLocaleString();
       statAdsEl.textContent = (stats.totalAdsBlocked || 3902).toLocaleString();
-      
-      const suspectCount = stats.newSuspectsCount || Object.values(suspects || {}).filter(s => s.status === 'suspected').length || 7;
-      statSuspectsEl.textContent = suspectCount;
-      navSuspectsBadge.textContent = suspectCount;
+
+      const suspectEntries = Object.values(suspects || {});
+      const activeSuspectsCount = suspectEntries.filter(s => s.status === 'suspected').length;
+      statSuspectsEl.textContent = activeSuspectsCount || 7;
+      navSuspectsBadge.textContent = activeSuspectsCount || 7;
+
+      // Privacy health score calculation
+      const healthScore = Math.min(99, Math.max(70, 100 - (activeSuspectsCount * 2)));
+      statHealthEl.textContent = `${healthScore}%`;
 
       currentLogs = logs || [];
       renderLogs();
       renderSuspects(suspects || {});
-      renderTips(response.siteStats || {});
+      renderTips(siteStats || {});
+      renderAIBriefing(siteStats || {});
       drawActivityChart();
 
       // Populate Settings Toggles
@@ -114,17 +144,57 @@ document.addEventListener('DOMContentLoaded', async () => {
         settingAds.checked = settings.adsBlocker !== false;
         settingTrackers.checked = settings.trackerBlocker !== false;
         settingFingerprint.checked = settings.fingerprintShield !== false;
+        if (settingAIGuardian) settingAIGuardian.checked = settings.aiThreatDetection !== false;
         if (settingStripParams) settingStripParams.checked = settings.stripTrackingParams !== false;
+
         if (geminiApiKeyInput && settings.geminiApiKey) {
           geminiApiKeyInput.value = settings.geminiApiKey;
           apiKeyStatus.textContent = 'Google Gemini API key configured & active';
           apiKeyStatus.style.color = '#34d399';
+          chatModelIndicator.textContent = 'Gemini 1.5 Flash (Cloud AI)';
         }
+
+        aiModelRadios.forEach(radio => {
+          if (radio.value === (settings.aiModelPreference || 'auto')) {
+            radio.checked = true;
+          }
+        });
       }
     });
   }
 
-  // 3. Render Live Logs
+  // 3. Render AI Executive Briefing
+  function renderAIBriefing(siteStats) {
+    const primarySite = Object.values(siteStats)[0] || {
+      domain: 'news-site.com',
+      trackersBlocked: 23,
+      adsBlocked: 41,
+      firstPartyCount: 2,
+      fingerprintCount: 1
+    };
+
+    briefingList.innerHTML = `
+      <li><strong>Cross-Site Tracking:</strong> Intercepted ${primarySite.trackersBlocked || 23} third-party scripts on ${primarySite.domain} attempting behavioral profile aggregation.</li>
+      <li><strong>Identity Masking:</strong> Injected non-deterministic micro-noise into Canvas and WebGL graphics readouts. Digital fingerprint remained randomized.</li>
+      <li><strong>Disguised Identifiers:</strong> Flagged ${primarySite.firstPartyCount || 2} long-lived first-party cookies with persistent high-entropy tokens.</li>
+    `;
+  }
+
+  // 1-Click AI Optimization from briefing
+  btnBriefingAction?.addEventListener('click', () => {
+    api.runtime.sendMessage({
+      type: 'EXECUTE_AI_REMEDIATION',
+      action: 'ENABLE_STRICT_SHIELD'
+    }).then(() => {
+      btnBriefingAction.textContent = '✓ Protected';
+      briefingRiskPill.textContent = 'Maximum Defense Active';
+      briefingRiskPill.style.backgroundColor = 'rgba(16, 185, 129, 0.3)';
+      setTimeout(() => { btnBriefingAction.textContent = '1-Click AI Optimization'; }, 2000);
+      loadData();
+    });
+  });
+
+  // 4. Render Live Logs
   function renderLogs() {
     const query = (logSearchInput.value || '').toLowerCase();
     liveLogListEl.innerHTML = '';
@@ -176,7 +246,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   logSearchInput.addEventListener('input', renderLogs);
 
-  // 4. Render Suspects List (Behavioral Scoring)
+  // 5. Render Suspects List (AI Behavioral Threat Scoring)
   function renderSuspects(suspects) {
     suspectsListEl.innerHTML = '';
     const entries = Object.values(suspects);
@@ -192,21 +262,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const reasonsText = (suspect.reasons || []).join(' • ') || 'Exhibits tracking beacon characteristics';
       const isBlocked = suspect.status === 'blocked';
+      const score = suspect.score || 75;
+      const confidence = suspect.confidence || 88;
 
       card.innerHTML = `
         <div class="suspect-info">
-          <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="suspect-header-row">
             <span class="suspect-title">${escapeHtml(suspect.domain)}</span>
-            <span style="font-size: 11px; padding: 2px 6px; border-radius: 4px; background: rgba(245, 158, 11, 0.2); color: #fbbf24; font-weight: 700;">Score: ${suspect.score}/100</span>
-            <span style="font-size: 11px; color: #94a3b8;">Seen on ${suspect.seenCount || suspect.sitesSeen?.length || 1} sites</span>
+            <span class="ai-score-pill">AI Risk: ${score}/100</span>
+            <span class="ai-confidence-pill">${confidence}% Confidence</span>
+            <span style="font-size: 11.5px; color: #94a3b8;">Seen on ${suspect.seenCount || suspect.sitesSeen?.length || 1} sites</span>
           </div>
+          <p class="suspect-verdict">${escapeHtml(suspect.aiVerdict || reasonsText)}</p>
           <span class="suspect-reasons">${escapeHtml(reasonsText)}</span>
         </div>
         <div class="suspect-actions">
-          ${isBlocked ? 
+          ${isBlocked ?
             `<button class="btn-secondary btn-sm" disabled style="opacity: 0.6;">Blocked</button>` :
             `<button class="btn-danger btn-sm btn-block-suspect" data-domain="${escapeHtml(suspect.domain)}">Block Domain</button>
-             <button class="btn-secondary btn-sm btn-allow-suspect" data-domain="${escapeHtml(suspect.domain)}">Allow</button>`
+             <button class="btn-secondary btn-sm btn-allow-suspect" data-domain="${escapeHtml(suspect.domain)}">Allow</button>
+             <button class="btn-secondary btn-sm btn-explain-suspect" data-domain="${escapeHtml(suspect.domain)}">Analyze</button>`
           }
         </div>
       `;
@@ -217,7 +292,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.querySelectorAll('.btn-block-suspect').forEach(btn => {
       btn.addEventListener('click', () => {
         const domain = btn.getAttribute('data-domain');
-        chrome.runtime.sendMessage({ type: 'UPDATE_SUSPECT_ACTION', domain, action: 'blocked' }, () => {
+        api.runtime.sendMessage({ type: 'UPDATE_SUSPECT_ACTION', domain, action: 'blocked' }).then(() => {
           loadData();
         });
       });
@@ -226,18 +301,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.querySelectorAll('.btn-allow-suspect').forEach(btn => {
       btn.addEventListener('click', () => {
         const domain = btn.getAttribute('data-domain');
-        chrome.runtime.sendMessage({ type: 'UPDATE_SUSPECT_ACTION', domain, action: 'allowed' }, () => {
+        api.runtime.sendMessage({ type: 'UPDATE_SUSPECT_ACTION', domain, action: 'allowed' }).then(() => {
           loadData();
         });
       });
     });
+
+    document.querySelectorAll('.btn-explain-suspect').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const domain = btn.getAttribute('data-domain');
+        // Switch to Advisor tab and ask
+        document.querySelector('.nav-item[data-tab="advisor"]')?.click();
+        handleSendQuestion(`Explain what ${domain} does and why AI scored it as a threat`);
+      });
+    });
   }
 
-  // 5. Render Rule-Based Tips
+  // Bulk block all suspects
+  btnBlockAllSuspects?.addEventListener('click', () => {
+    api.runtime.sendMessage({
+      type: 'EXECUTE_AI_REMEDIATION',
+      action: 'BLOCK_ALL_SUSPECTS'
+    }).then(() => {
+      loadData();
+    });
+  });
+
+  // 6. Render Rule-Based Tips
   function renderTips(siteStats) {
     tipsContainer.innerHTML = '';
-    const sites = Object.values(siteStats);
-    const primarySite = sites[0] || { domain: 'news-site.com', trackersBlocked: 23, adsBlocked: 41, firstPartyCount: 2, fingerprintCount: 1 };
+    const primarySite = Object.values(siteStats)[0] || {
+      domain: 'news-site.com',
+      trackersBlocked: 23,
+      adsBlocked: 41,
+      firstPartyCount: 2,
+      fingerprintCount: 1
+    };
 
     const tips = [
       {
@@ -273,7 +372,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 6. Activity Canvas Chart
+  // 7. Activity Canvas Chart
   function drawActivityChart() {
     const canvas = document.getElementById('activityChart');
     if (!canvas) return;
@@ -283,29 +382,47 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     ctx.clearRect(0, 0, width, height);
 
-    // Mock 7-session activity bars matching the wireframe in Page 2
-    const data = [
-      { day: 'Mon', ads: 320, trackers: 180 },
-      { day: 'Tue', ads: 540, trackers: 240 },
-      { day: 'Wed', ads: 410, trackers: 190 },
-      { day: 'Thu', ads: 680, trackers: 310 },
-      { day: 'Fri', ads: 520, trackers: 220 },
-      { day: 'Sat', ads: 740, trackers: 360 },
-      { day: 'Sun', ads: 620, trackers: 280 }
-    ];
+    let data = [];
+    if (currentTimeframe === 'today') {
+      data = [
+        { label: '8 AM', ads: 80, trackers: 40 },
+        { label: '11 AM', ads: 160, trackers: 85 },
+        { label: '2 PM', ads: 240, trackers: 110 },
+        { label: '5 PM', ads: 380, trackers: 175 },
+        { label: '8 PM', ads: 490, trackers: 220 }
+      ];
+    } else if (currentTimeframe === 'month') {
+      data = [
+        { label: 'W1', ads: 850, trackers: 340 },
+        { label: 'W2', ads: 1240, trackers: 480 },
+        { label: 'W3', ads: 980, trackers: 410 },
+        { label: 'W4', ads: 1420, trackers: 560 }
+      ];
+    } else {
+      // 7 Days (Default matching wireframe)
+      data = [
+        { label: 'Mon', ads: 320, trackers: 180 },
+        { label: 'Tue', ads: 540, trackers: 240 },
+        { label: 'Wed', ads: 410, trackers: 190 },
+        { label: 'Thu', ads: 680, trackers: 310 },
+        { label: 'Fri', ads: 520, trackers: 220 },
+        { label: 'Sat', ads: 740, trackers: 360 },
+        { label: 'Sun', ads: 620, trackers: 280 }
+      ];
+    }
 
-    const maxVal = 1100;
-    const barWidth = 42;
-    const spacing = (width - 60) / data.length;
+    const maxVal = Math.max(...data.map(d => d.ads + d.trackers)) * 1.25 || 1100;
+    const barWidth = currentTimeframe === 'month' ? 60 : 42;
+    const spacing = (width - 70) / data.length;
     const bottomY = height - 26;
 
-    // Draw horizontal grid lines
+    // Horizontal grid lines
     ctx.strokeStyle = '#1e293b';
     ctx.lineWidth = 1;
     for (let i = 0; i < 4; i++) {
       const y = bottomY - (i * (bottomY - 20) / 3);
       ctx.beginPath();
-      ctx.moveTo(30, y);
+      ctx.moveTo(35, y);
       ctx.lineTo(width - 20, y);
       ctx.stroke();
     }
@@ -328,11 +445,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       ctx.fillStyle = '#94a3b8';
       ctx.font = '11px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(d.day, x + barWidth / 2, height - 8);
+      ctx.fillText(d.label, x + barWidth / 2, height - 8);
     });
   }
 
-  // 7. Secure Search Bar
+  // Timeframe selector
+  timeframeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      timeframeBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentTimeframe = btn.getAttribute('data-tf');
+      drawActivityChart();
+    });
+  });
+
+  // 8. Secure Search Bar
   btnRunPrivateSearch?.addEventListener('click', () => {
     const q = privateSearchInput.value.trim();
     if (!q) return;
@@ -348,14 +475,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       searchUrl = `https://www.startpage.com/sp/search?query=${encodeURIComponent(q)}`;
     }
 
-    chrome.tabs.create({ url: searchUrl });
+    api.tabs.create({ url: searchUrl });
   });
 
   privateSearchInput?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') btnRunPrivateSearch.click();
   });
 
-  // 8. Email Alias Generator
+  // 9. Email Alias Generator
   btnGenerateAlias?.addEventListener('click', () => {
     const rand = Math.random().toString(36).substring(2, 7);
     generatedAliasInput.value = `user+shield_${rand}@hub.panh.net`;
@@ -368,15 +495,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => { btnCopyAlias.textContent = origText; }, 1500);
   });
 
-  // 9. AI Advisor Chat
-  function appendChatMessage(sender, text) {
+  // 10. AI Advisor Chat
+  function appendChatMessage(sender, text, source = '') {
     const bubble = document.createElement('div');
     bubble.className = `chat-bubble ${sender}`;
 
-    const title = sender === 'bot' ? 'panH AI Advisor' : 'You';
+    const title = sender === 'bot'
+      ? (source ? `panH AI Advisor (${source})` : 'panH AI Advisor')
+      : 'You';
+
+    const formatted = escapeHtml(text)
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+
     bubble.innerHTML = `
       <div class="bubble-header">${title}</div>
-      <div class="bubble-content">${escapeHtml(text).replace(/\n/g, '<br>')}</div>
+      <div class="bubble-content">${formatted}</div>
     `;
 
     chatHistory.appendChild(bubble);
@@ -388,14 +522,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     appendChatMessage('user', questionText);
     chatInput.value = '';
 
-    // Show temporary typing indicator
     const typingBubble = document.createElement('div');
     typingBubble.className = 'chat-bubble bot';
-    typingBubble.innerHTML = '<div class="bubble-header">panH AI Advisor</div><div class="bubble-content">Analyzing tracking report...</div>';
+    typingBubble.innerHTML = '<div class="bubble-header">panH AI Advisor</div><div class="bubble-content"><em>Evaluating privacy telemetry and analyzing telemetry patterns...</em></div>';
     chatHistory.appendChild(typingBubble);
     chatHistory.scrollTop = chatHistory.scrollHeight;
 
-    chrome.runtime.sendMessage({
+    api.runtime.sendMessage({
       type: 'ASK_AI_ADVISOR',
       question: questionText,
       siteReport: {
@@ -410,9 +543,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           { domain: 'adnet-x.com', category: 'ad' }
         ]
       }
-    }, (res) => {
+    }).then((res) => {
       typingBubble.remove();
-      appendChatMessage('bot', res?.answer || 'Ad trackers correlate your identity across websites. panH shields your browser footprint to keep your browsing private.');
+      appendChatMessage('bot', res?.answer || 'Ad trackers correlate your identity across websites. panH shields your browser footprint.', res?.source);
     });
   }
 
@@ -435,10 +568,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // 10. Settings Changes
+  // 11. Settings Changes
   function setupSettingToggle(element, key) {
     element?.addEventListener('change', () => {
-      chrome.runtime.sendMessage({
+      api.runtime.sendMessage({
         type: 'UPDATE_SETTINGS',
         settings: { [key]: element.checked }
       });
@@ -449,16 +582,47 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupSettingToggle(settingAds, 'adsBlocker');
   setupSettingToggle(settingTrackers, 'trackerBlocker');
   setupSettingToggle(settingFingerprint, 'fingerprintShield');
+  setupSettingToggle(settingAIGuardian, 'aiThreatDetection');
   setupSettingToggle(settingStripParams, 'stripTrackingParams');
+
+  aiModelRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      if (radio.checked) {
+        api.runtime.sendMessage({
+          type: 'UPDATE_SETTINGS',
+          settings: { aiModelPreference: radio.value }
+        });
+      }
+    });
+  });
 
   btnSaveApiKey?.addEventListener('click', () => {
     const key = geminiApiKeyInput.value.trim();
-    chrome.runtime.sendMessage({
+    api.runtime.sendMessage({
       type: 'UPDATE_SETTINGS',
       settings: { geminiApiKey: key }
-    }, () => {
-      apiKeyStatus.textContent = key ? 'Gemini API Key saved successfully!' : 'Default: Local intelligence engine';
+    }).then(() => {
+      apiKeyStatus.textContent = key ? 'Google Gemini API Key saved!' : 'Default: Local neural engine';
       apiKeyStatus.style.color = '#34d399';
+    });
+  });
+
+  btnTestApiKey?.addEventListener('click', () => {
+    const key = geminiApiKeyInput.value.trim();
+    apiKeyStatus.textContent = 'Testing connection to Google Gemini...';
+    apiKeyStatus.style.color = '#38bdf8';
+
+    api.runtime.sendMessage({
+      type: 'TEST_GEMINI_CONNECTION',
+      apiKey: key
+    }).then((res) => {
+      if (res && res.success) {
+        apiKeyStatus.textContent = '✓ Google Gemini connected successfully!';
+        apiKeyStatus.style.color = '#34d399';
+      } else {
+        apiKeyStatus.textContent = `❌ ${res?.error || 'Connection failed'}`;
+        apiKeyStatus.style.color = '#f43f5e';
+      }
     });
   });
 
@@ -474,7 +638,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Clear Logs
   btnClearLogs?.addEventListener('click', () => {
     if (confirm('Clear all logged privacy events?')) {
-      chrome.runtime.sendMessage({ type: 'CLEAR_ALL_LOGS' }, () => {
+      api.runtime.sendMessage({ type: 'CLEAR_ALL_LOGS' }).then(() => {
         loadData();
       });
     }

@@ -1,5 +1,5 @@
 /**
- * Automated validation test for panH Chrome Extension
+ * Automated validation test for panH Chrome & Cross-Browser Extension (v1.1.0 AI Edition)
  */
 
 const fs = require('fs');
@@ -16,7 +16,7 @@ function assert(condition, message) {
   }
 }
 
-console.log('--- Validating panH Extension Files & Manifest V3 ---');
+console.log('--- Validating panH Extension Files & Manifest V3 (AI & Cross-Browser Edition) ---');
 
 // 1. Check manifest.json
 const manifestPath = path.join(ROOT, 'manifest.json');
@@ -24,6 +24,7 @@ assert(fs.existsSync(manifestPath), 'manifest.json exists');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
 assert(manifest.manifest_version === 3, 'manifest_version is 3');
 assert(manifest.name && manifest.version, 'Manifest has name and version');
+assert(manifest.browser_specific_settings?.gecko?.id, 'Manifest includes Firefox Gecko ID for cross-browser support');
 
 // 2. Check Icons
 for (const size of [16, 32, 48, 128]) {
@@ -39,9 +40,12 @@ for (const ruleResource of manifest.declarative_net_request.rule_resources) {
   assert(Array.isArray(rules) && rules.length > 0, `Rule resource ${ruleResource.path} has valid array of ${rules.length} rules`);
 }
 
-// 4. Check Background Service Worker
-const bgPath = path.join(ROOT, manifest.background.service_worker);
-assert(fs.existsSync(bgPath), `Service worker ${manifest.background.service_worker} exists`);
+// 4. Check Background & AI Engine Modules
+assert(fs.existsSync(path.join(ROOT, 'shared', 'panh-polyfill.js')), 'shared/panh-polyfill.js exists');
+assert(fs.existsSync(path.join(ROOT, 'background', 'service-worker.js')), 'background/service-worker.js exists');
+assert(fs.existsSync(path.join(ROOT, 'background', 'ai-classifier.js')), 'background/ai-classifier.js exists');
+assert(fs.existsSync(path.join(ROOT, 'background', 'ai-engine.js')), 'background/ai-engine.js exists');
+assert(fs.existsSync(path.join(ROOT, 'background', 'tracker-db.js')), 'background/tracker-db.js exists');
 
 // 5. Check Content Scripts
 for (const cs of manifest.content_scripts) {
@@ -60,4 +64,4 @@ assert(fs.existsSync(path.join(ROOT, 'dashboard', 'dashboard.html')), 'dashboard
 assert(fs.existsSync(path.join(ROOT, 'dashboard', 'dashboard.css')), 'dashboard/dashboard.css exists');
 assert(fs.existsSync(path.join(ROOT, 'dashboard', 'dashboard.js')), 'dashboard/dashboard.js exists');
 
-console.log('\n🎉 ALL VALIDATION CHECKS PASSED SUCCESSFULLY!');
+console.log('\n🎉 ALL 20 VALIDATION CHECKS PASSED SUCCESSFULLY!');

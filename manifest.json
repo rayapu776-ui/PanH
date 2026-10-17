@@ -1,13 +1,19 @@
 {
   "manifest_version": 3,
   "name": "panH - Privacy & Anonymity Network Hub",
-  "version": "1.0.0",
-  "description": "Privacy Guardian: Blocks ads & trackers, masks browser fingerprint, protects search & email, and explains why in plain language.",
+  "version": "1.1.0",
+  "description": "AI-Powered Privacy Guardian: Stops hidden trackers, defeats browser fingerprinting, secures search & email, and explains why in plain English.",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "panh-privacy@panh.net",
+      "strict_min_version": "113.0"
+    }
   },
   "action": {
     "default_popup": "popup/popup.html",
@@ -75,7 +81,8 @@
         "*://mail.google.com/*",
         "*://outlook.live.com/*",
         "*://outlook.office.com/*",
-        "*://mail.yahoo.com/*"
+        "*://mail.yahoo.com/*",
+        "*://mail.proton.me/*"
       ],
       "js": ["content_scripts/email-privacy.js"],
       "run_at": "document_idle",
@@ -84,7 +91,12 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["icons/*", "dashboard/*", "popup/*"],
+      "resources": [
+        "icons/*",
+        "dashboard/*",
+        "popup/*",
+        "shared/*"
+      ],
       "matches": ["<all_urls>"]
     }
   ]

@@ -222,3 +222,4 @@ export function explainDomainAction(domain, action = 'blocked', context = {}) {
     reason: 'External script attempting to run background communications and track user sessions.'
   };
 }
+

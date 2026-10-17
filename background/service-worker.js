@@ -1,10 +1,15 @@
 /**
  * panH - Privacy & Anonymity Network Hub
- * Background Service Worker: Core Privacy Engine
+ * Background Service Worker: Core Privacy Engine with AI Threat Intelligence
+ * Compatible across Chrome, Edge, Firefox, Brave, and Opera (Manifest V3)
  */
 
 import { explainDomainAction, KNOWN_TRACKERS } from './tracker-db.js';
-import { generateRuleBasedTips, generateAISummary, handleAIAdvisorQuery } from './advisor-ai.js';
+import { evaluateRequestThreat } from './ai-classifier.js';
+import { generateSiteAuditSummary, generateRuleBasedTips, queryAIAdvisor } from './ai-engine.js';
+
+// Cross-browser API bridge
+const api = (typeof browser !== 'undefined' && browser.runtime) ? browser : chrome;
 
 const DEFAULT_SETTINGS = {
   masterEnabled: true,
@@ -16,16 +21,22 @@ const DEFAULT_SETTINGS = {
   cosmeticFilter: true,
   searchEngine: 'duckduckgo',
   stripTrackingParams: true,
+  aiThreatDetection: true,
+  aiModelPreference: 'auto', // 'auto' | 'local_only' | 'gemini'
   geminiApiKey: '',
   whitelistedDomains: []
 };
 
-// Seed realistic initial stats & logs matching the project document v0.1 specs
+// Seed initial realistic baseline telemetry matching project specs
 const INITIAL_STATS = {
   totalTrackersBlocked: 1284,
   totalAdsBlocked: 3902,
   newSuspectsCount: 7,
-  totalEvents: 5193
+  totalEvents: 5193,
+  timeframe: {
+    today: { ads: 540, trackers: 240 },
+    week: { ads: 3902, trackers: 1284 }
+  }
 };
 
 const INITIAL_LOGS = [
@@ -82,48 +93,62 @@ const INITIAL_SUSPECTS = {
     seenCount: 18,
     sitesSeen: ['shop.com', 'news-portal.io', 'techreview.com', 'blog.org'],
     score: 85,
+    confidence: 92,
+    threatType: 'cross_site_tracker',
     status: 'suspected',
-    reasons: ['Seen across 18 unrelated domains', 'Sends recurring beacon payloads', 'Sets UUID tracking cookie']
+    reasons: ['Seen across 18 unrelated domains', 'Sends recurring beacon payloads', 'Sets UUID tracking cookie'],
+    aiVerdict: 'AI Threat Engine: High confidence cross-site tracker transmitting hardware identifiers across 18 publisher sites.'
   },
   'collector-edge.io': {
     domain: 'collector-edge.io',
     seenCount: 9,
     sitesSeen: ['media-hub.net', 'buyonline.org'],
     score: 72,
+    confidence: 84,
+    threatType: 'beacon',
     status: 'suspected',
-    reasons: ['High frequency third-party beacons', 'Unregistered analytics endpoint']
+    reasons: ['High frequency third-party beacons', 'Unregistered analytics endpoint'],
+    aiVerdict: 'AI Threat Engine: Recurring background telemetry collector harvesting page scroll and dwell times.'
   },
   'audience-sync.xyz': {
     domain: 'audience-sync.xyz',
     seenCount: 12,
     sitesSeen: ['deals.com', 'reviewdaily.net'],
     score: 79,
+    confidence: 89,
+    threatType: 'ad_sync',
     status: 'suspected',
-    reasons: ['Queries localStorage and canvas data', 'Exchanges cross-domain URL tokens']
+    reasons: ['Queries localStorage and canvas data', 'Exchanges cross-domain URL tokens'],
+    aiVerdict: 'AI Threat Engine: Programmatic audience exchange syncing visitor identifiers across e-commerce portals.'
   }
 };
 
-// Initialize Extension Storage
-chrome.runtime.onInstalled.addListener(async (details) => {
-  console.log('[panH] Extension installed or updated:', details.reason);
-  
-  const existing = await chrome.storage.local.get(['settings', 'stats', 'logs', 'suspects', 'siteStats']);
-  
+/**
+ * Extension Installation & Storage Initialization
+ */
+api.runtime?.onInstalled?.addListener(async (details) => {
+  console.log('[panH Engine] Initializing storage, reason:', details.reason);
+
+  const existing = await api.storage.local.get(['settings', 'stats', 'logs', 'suspects', 'siteStats']);
+
   if (!existing.settings) {
-    await chrome.storage.local.set({ settings: DEFAULT_SETTINGS });
+    await api.storage.local.set({ settings: DEFAULT_SETTINGS });
+  } else {
+    // Merge new defaults if missing
+    await api.storage.local.set({ settings: { ...DEFAULT_SETTINGS, ...existing.settings } });
   }
+
   if (!existing.stats) {
-    await chrome.storage.local.set({ stats: INITIAL_STATS });
+    await api.storage.local.set({ stats: INITIAL_STATS });
   }
   if (!existing.logs) {
-    await chrome.storage.local.set({ logs: INITIAL_LOGS });
+    await api.storage.local.set({ logs: INITIAL_LOGS });
   }
   if (!existing.suspects) {
-    await chrome.storage.local.set({ suspects: INITIAL_SUSPECTS });
+    await api.storage.local.set({ suspects: INITIAL_SUSPECTS });
   }
   if (!existing.siteStats) {
-    // Seed default sample for news-site.com matching design
-    await chrome.storage.local.set({
+    await api.storage.local.set({
       siteStats: {
         'news-site.com': {
           domain: 'news-site.com',
@@ -142,33 +167,36 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     });
   }
 
-  // Create context menus
+  // Register context menu for quick dashboard access
   try {
-    chrome.contextMenus.create({
+    api.contextMenus?.create({
       id: 'panh-open-dashboard',
       title: 'panH: Open Privacy Dashboard',
       contexts: ['action', 'page']
     });
   } catch (e) {
-    // Ignore duplicate menu error
+    // Menu already exists
   }
 });
 
-chrome.contextMenus?.onClicked.addListener((info, tab) => {
+api.contextMenus?.onClicked?.addListener((info) => {
   if (info.menuItemId === 'panh-open-dashboard') {
-    chrome.tabs.create({ url: chrome.runtime.getURL('dashboard/dashboard.html') });
+    api.tabs?.create({ url: api.runtime.getURL('dashboard/dashboard.html') });
   }
 });
 
 /**
- * Log a privacy event and update real-time statistics
+ * Record a Privacy Event and Run AI Threat Scoring
  */
 async function recordPrivacyEvent({ domain, siteDomain, category, action, reason, context = {} }) {
-  const store = await chrome.storage.local.get(['stats', 'logs', 'siteStats', 'suspects']);
+  const store = await api.storage.local.get(['stats', 'logs', 'siteStats', 'suspects', 'settings']);
   const stats = store.stats || { ...INITIAL_STATS };
   const logs = store.logs || [];
   const siteStats = store.siteStats || {};
   const suspects = store.suspects || {};
+  const settings = store.settings || DEFAULT_SETTINGS;
+
+  if (!settings.masterEnabled) return;
 
   // Update counters
   if (action === 'blocked' && category === 'ad') {
@@ -178,7 +206,7 @@ async function recordPrivacyEvent({ domain, siteDomain, category, action, reason
   }
   stats.totalEvents = (stats.totalEvents || 0) + 1;
 
-  // Append to recent live logs (keep last 500)
+  // Append to recent logs (keep last 500)
   const newLogEntry = {
     id: 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
     timestamp: Date.now(),
@@ -191,7 +219,7 @@ async function recordPrivacyEvent({ domain, siteDomain, category, action, reason
   logs.unshift(newLogEntry);
   if (logs.length > 500) logs.pop();
 
-  // Update Site Stats
+  // Update Per-Site Statistics
   if (siteDomain && siteDomain !== 'general') {
     if (!siteStats[siteDomain]) {
       siteStats[siteDomain] = {
@@ -212,7 +240,10 @@ async function recordPrivacyEvent({ domain, siteDomain, category, action, reason
     if (category === 'fingerprinting') currentSite.fingerprintCount += 1;
 
     // Recalculate site score
-    const penalties = (currentSite.trackersBlocked * 3) + (currentSite.adsBlocked * 2) + (currentSite.firstPartyCount * 5) + (currentSite.fingerprintCount * 6);
+    const penalties = (currentSite.trackersBlocked * 3) +
+                      (currentSite.adsBlocked * 2) +
+                      (currentSite.firstPartyCount * 5) +
+                      (currentSite.fingerprintCount * 6);
     currentSite.score = Math.max(15, Math.min(99, 100 - penalties));
     currentSite.lastUpdated = Date.now();
 
@@ -223,41 +254,46 @@ async function recordPrivacyEvent({ domain, siteDomain, category, action, reason
     }
   }
 
-  // Check for Behavioral Pattern Scoring on unknown domains
-  if (domain && !KNOWN_TRACKERS[domain] && !domain.includes('fingerprint') && siteDomain) {
-    if (!suspects[domain]) {
+  // AI Behavioral Threat Evaluation on Unknown Domains
+  if (settings.aiThreatDetection && domain && !KNOWN_TRACKERS[domain] && !domain.includes('fingerprint') && siteDomain) {
+    const existingSuspect = suspects[domain];
+    const sitesSeen = existingSuspect ? existingSuspect.sitesSeen : [];
+    if (!sitesSeen.includes(siteDomain)) sitesSeen.push(siteDomain);
+
+    const aiEval = evaluateRequestThreat({
+      domain,
+      siteDomain,
+      sitesSeen,
+      isBeacon: context.isBeacon || false,
+      hasLongCookie: context.hasLongCookie || false,
+      isFingerprintProbe: category === 'fingerprinting'
+    });
+
+    if (aiEval.riskScore >= 40) {
       suspects[domain] = {
         domain,
-        seenCount: 1,
-        sitesSeen: [siteDomain],
-        score: 20,
-        status: 'evaluating',
-        reasons: ['Observed third-party script loading']
+        seenCount: sitesSeen.length,
+        sitesSeen,
+        score: aiEval.riskScore,
+        confidence: aiEval.confidence,
+        threatType: aiEval.threatType,
+        status: existingSuspect?.status === 'blocked' ? 'blocked' : 'suspected',
+        reasons: aiEval.signals,
+        aiVerdict: aiEval.aiVerdict
       };
-    } else {
-      const suspect = suspects[domain];
-      if (!suspect.sitesSeen.includes(siteDomain)) {
-        suspect.sitesSeen.push(siteDomain);
-        suspect.seenCount += 1;
-        suspect.score += 25; // High cross-site repetition
-        suspect.reasons.push(`Seen on unrelated site: ${siteDomain}`);
-      }
 
-      if (suspect.seenCount >= 3 && suspect.score >= 50 && suspect.status !== 'blocked') {
-        suspect.status = 'suspected';
-        stats.newSuspectsCount = Object.values(suspects).filter(s => s.status === 'suspected').length;
-      }
+      stats.newSuspectsCount = Object.values(suspects).filter(s => s.status === 'suspected').length;
     }
   }
 
-  await chrome.storage.local.set({ stats, logs, siteStats, suspects });
+  await api.storage.local.set({ stats, logs, siteStats, suspects });
 }
 
 /**
- * Handle Debug Rule Matching for declarativeNetRequest (Development / Unpacked mode)
+ * Handle DeclarativeNetRequest Debug Events (Unpacked / Dev Mode)
  */
-if (chrome.declarativeNetRequest?.onRuleMatchedDebug) {
-  chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((info) => {
+if (api.declarativeNetRequest?.onRuleMatchedDebug) {
+  api.declarativeNetRequest.onRuleMatchedDebug.addListener((info) => {
     const requestUrl = info.request?.url || '';
     let domain = '';
     let siteDomain = '';
@@ -281,18 +317,21 @@ if (chrome.declarativeNetRequest?.onRuleMatchedDebug) {
 }
 
 /**
- * Secure Search & Tracking Parameter Stripping via webNavigation
+ * Secure Search: Automatic Tracking Parameter Stripper via webNavigation
  */
-chrome.webNavigation?.onBeforeNavigate.addListener(async (details) => {
-  if (details.frameId !== 0) return; // Only process main frame navigations
-  
-  const store = await chrome.storage.local.get(['settings']);
+api.webNavigation?.onBeforeNavigate?.addListener(async (details) => {
+  if (details.frameId !== 0) return; // Only process top-level navigation
+
+  const store = await api.storage.local.get(['settings']);
   const settings = store.settings || DEFAULT_SETTINGS;
   if (!settings.masterEnabled || !settings.stripTrackingParams) return;
 
   try {
     const url = new URL(details.url);
-    const trackingParams = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'utm_id', 'gclid', 'fbclid', 'msclkid', 'mc_eid', 'dclid', '_hsenc', '_hsmi', 'vero_id', 'yclid'];
+    const trackingParams = [
+      'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'utm_id',
+      'gclid', 'fbclid', 'msclkid', 'mc_eid', 'dclid', '_hsenc', '_hsmi', 'vero_id', 'yclid', 'ttclid'
+    ];
     let strippedAny = false;
 
     for (const p of trackingParams) {
@@ -303,32 +342,32 @@ chrome.webNavigation?.onBeforeNavigate.addListener(async (details) => {
     }
 
     if (strippedAny) {
-      console.log('[panH Secure Search] Stripped tracking parameters from:', details.url);
+      console.log('[panH Secure Search] Stripped tracking tags from:', details.url);
       recordPrivacyEvent({
         domain: url.hostname,
         siteDomain: url.hostname,
         category: 'analytics',
         action: 'stripped',
-        reason: `Stripped campaign tracking tags (utm/gclid/fbclid) from navigation URL`
+        reason: 'Stripped outbound advertising tracking tags (utm/gclid/fbclid) from navigation URL'
       });
-      chrome.tabs.update(details.tabId, { url: url.toString() });
+      api.tabs?.update(details.tabId, { url: url.toString() });
     }
   } catch (err) {
-    // Ignore malformed URL
+    // Ignore invalid URL
   }
 });
 
 /**
  * Central Message Router for Content Scripts, Popup, and Dashboard
  */
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+api.runtime?.onMessage?.addListener((message, sender, sendResponse) => {
   (async () => {
     try {
       const tabDomain = sender.tab?.url ? new URL(sender.tab.url).hostname : '';
 
       switch (message.type) {
         case 'REPORT_FINGERPRINT_PROBE': {
-          recordPrivacyEvent({
+          await recordPrivacyEvent({
             domain: `${message.probeType || 'canvas'}.probe`,
             siteDomain: tabDomain || message.siteDomain,
             category: 'fingerprinting',
@@ -340,19 +379,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         case 'REPORT_FIRST_PARTY_TRACKER': {
-          recordPrivacyEvent({
+          await recordPrivacyEvent({
             domain: message.cookieName || 'cookie_tracker',
             siteDomain: tabDomain || message.siteDomain,
             category: 'first-party',
             action: 'blocked',
-            reason: `Discovered long-lived tracker cookie '${message.cookieName}' (${message.details || 'ID-like value'})`
+            reason: `Discovered long-lived tracker cookie '${message.cookieName}' (${message.details || 'ID-like value'})`,
+            context: { hasLongCookie: true }
           });
           sendResponse({ success: true });
           break;
         }
 
         case 'REPORT_EMAIL_TRACKER': {
-          recordPrivacyEvent({
+          await recordPrivacyEvent({
             domain: message.domain || 'email.spy-pixel',
             siteDomain: 'webmail',
             category: 'email',
@@ -364,12 +404,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         case 'GET_SITE_REPORT': {
-          const store = await chrome.storage.local.get(['siteStats', 'settings']);
+          const store = await api.storage.local.get(['siteStats', 'settings']);
           const targetDomain = message.domain || tabDomain || 'news-site.com';
           let siteData = store.siteStats?.[targetDomain];
 
           if (!siteData) {
-            // Default active baseline for unvisited domain
             siteData = {
               domain: targetDomain,
               trackersBlocked: 0,
@@ -382,19 +421,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }
 
           const tips = generateRuleBasedTips(siteData);
-          const aiSummary = generateAISummary(siteData);
+          const aiAudit = generateSiteAuditSummary(siteData);
 
           sendResponse({
             siteData,
             settings: store.settings || DEFAULT_SETTINGS,
             tips,
-            aiSummary
+            aiAudit
           });
           break;
         }
 
         case 'GET_DASHBOARD_DATA': {
-          const store = await chrome.storage.local.get(['stats', 'logs', 'suspects', 'settings', 'siteStats']);
+          const store = await api.storage.local.get(['stats', 'logs', 'suspects', 'settings', 'siteStats']);
           sendResponse({
             stats: store.stats || INITIAL_STATS,
             logs: store.logs || INITIAL_LOGS,
@@ -406,28 +445,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         case 'UPDATE_SETTINGS': {
-          const store = await chrome.storage.local.get(['settings']);
+          const store = await api.storage.local.get(['settings']);
           const updated = { ...(store.settings || DEFAULT_SETTINGS), ...message.settings };
-          await chrome.storage.local.set({ settings: updated });
+          await api.storage.local.set({ settings: updated });
           sendResponse({ success: true, settings: updated });
           break;
         }
 
         case 'UPDATE_SUSPECT_ACTION': {
-          const store = await chrome.storage.local.get(['suspects', 'stats']);
+          const store = await api.storage.local.get(['suspects', 'stats']);
           const suspects = store.suspects || {};
           const stats = store.stats || { ...INITIAL_STATS };
           const { domain, action } = message;
 
           if (suspects[domain]) {
-            suspects[domain].status = action; // 'blocked' | 'allowed' | 'dismissed'
-            
+            suspects[domain].status = action;
+
             // If user decided to block, add a dynamic declarativeNetRequest rule
-            if (action === 'blocked' && chrome.declarativeNetRequest?.updateDynamicRules) {
+            if (action === 'blocked' && api.declarativeNetRequest?.updateDynamicRules) {
               try {
-                await chrome.declarativeNetRequest.updateDynamicRules({
+                await api.declarativeNetRequest.updateDynamicRules({
                   addRules: [{
-                    id: Math.floor(Math.random() * 100000) + 10000,
+                    id: Math.floor(Math.random() * 90000) + 10000,
                     priority: 2,
                     action: { type: 'block' },
                     condition: { urlFilter: `||${domain}^` }
@@ -439,22 +478,92 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
 
             stats.newSuspectsCount = Object.values(suspects).filter(s => s.status === 'suspected').length;
-            await chrome.storage.local.set({ suspects, stats });
+            await api.storage.local.set({ suspects, stats });
           }
           sendResponse({ success: true, suspects });
           break;
         }
 
         case 'ASK_AI_ADVISOR': {
-          const store = await chrome.storage.local.get(['settings']);
+          const store = await api.storage.local.get(['settings']);
           const apiKey = store.settings?.geminiApiKey || '';
-          const response = await handleAIAdvisorQuery(message.question, message.siteReport || {}, apiKey);
-          sendResponse({ answer: response });
+          const modelPref = store.settings?.aiModelPreference || 'auto';
+
+          const result = await queryAIAdvisor({
+            question: message.question,
+            siteReport: message.siteReport || {},
+            apiKey,
+            modelPreference: modelPref
+          });
+          sendResponse(result);
+          break;
+        }
+
+        case 'EXECUTE_AI_REMEDIATION': {
+          const store = await api.storage.local.get(['suspects', 'stats', 'settings']);
+          const suspects = store.suspects || {};
+          const stats = store.stats || { ...INITIAL_STATS };
+          const settings = store.settings || DEFAULT_SETTINGS;
+
+          if (message.action === 'BLOCK_ALL_SUSPECTS') {
+            for (const [domain, suspect] of Object.entries(suspects)) {
+              if (suspect.status === 'suspected') {
+                suspect.status = 'blocked';
+                if (api.declarativeNetRequest?.updateDynamicRules) {
+                  try {
+                    await api.declarativeNetRequest.updateDynamicRules({
+                      addRules: [{
+                        id: Math.floor(Math.random() * 90000) + 10000,
+                        priority: 2,
+                        action: { type: 'block' },
+                        condition: { urlFilter: `||${domain}^` }
+                      }]
+                    });
+                  } catch (e) {}
+                }
+              }
+            }
+            stats.newSuspectsCount = 0;
+            await api.storage.local.set({ suspects, stats });
+            sendResponse({ success: true, message: 'All high-risk suspects have been blocked.' });
+          } else if (message.action === 'ENABLE_STRICT_SHIELD') {
+            settings.fingerprintShield = true;
+            settings.secureSearch = true;
+            await api.storage.local.set({ settings });
+            sendResponse({ success: true, message: 'Strict Fingerprint Shield and Secure Search activated.' });
+          } else {
+            sendResponse({ success: true });
+          }
+          break;
+        }
+
+        case 'TEST_GEMINI_CONNECTION': {
+          const testKey = message.apiKey?.trim();
+          if (!testKey) {
+            sendResponse({ success: false, error: 'API key is empty' });
+            return;
+          }
+          try {
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${testKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: 'Hello, verify connection in 3 words.' }] }]
+              })
+            });
+            if (resp.ok) {
+              sendResponse({ success: true, message: 'Google Gemini connected successfully!' });
+            } else {
+              sendResponse({ success: false, error: `Connection failed: HTTP ${resp.status}` });
+            }
+          } catch (e) {
+            sendResponse({ success: false, error: e.message });
+          }
           break;
         }
 
         case 'CLEAR_ALL_LOGS': {
-          await chrome.storage.local.set({ logs: [] });
+          await api.storage.local.set({ logs: [] });
           sendResponse({ success: true });
           break;
         }
@@ -468,5 +577,5 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
   })();
 
-  return true; // Keep channel open for async response
+  return true; // Keep message channel open for async response
 });

@@ -14,6 +14,8 @@
     'getsignals.com', 'cirrusinsight.com'
   ];
 
+  const api = (typeof browser !== 'undefined' && browser.runtime) ? browser : chrome;
+
   function cleanEmailTrackingPixels() {
     try {
       const images = document.querySelectorAll('img');
@@ -55,7 +57,7 @@
           img.style.setProperty('display', 'none', 'important');
           
           try {
-            chrome.runtime?.sendMessage?.({
+            api.runtime?.sendMessage?.({
               type: 'REPORT_EMAIL_TRACKER',
               domain: trackerDomain
             });
@@ -82,3 +84,4 @@
 
   setInterval(cleanEmailTrackingPixels, 2000);
 })();
+
