@@ -298,3 +298,4 @@ function executeLocalAIEngine(question, siteReport) {
   return `On **${domain}**, panH has neutralized **${trackers} trackers** and **${ads} ads**. Your browser fingerprint is masked with micro-noise, and outbound links are stripped of tracking tags.\n\n` +
     `Ask me anything about specific trackers, fingerprinting, or how to secure your search and email!`;
 }
+

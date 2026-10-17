@@ -181,3 +181,4 @@
   }
   global.panhApi = panhBrowser;
 })(typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : this));
+
