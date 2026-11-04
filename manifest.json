@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "panH - Privacy & Anonymity Network Hub",
-  "version": "1.1.0",
-  "description": "AI-Powered Privacy Guardian: Stops hidden trackers, defeats browser fingerprinting, secures search & email, and explains why in plain English.",
+  "version": "1.0.0",
+  "description": "AI-Powered Browser Privacy, Ad Blocking & Threat Protection Platform (Blueprint v1.0).",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -78,6 +78,18 @@
     },
     {
       "matches": [
+        "*://*.google.com/*",
+        "*://*.bing.com/*",
+        "*://*.duckduckgo.com/*",
+        "*://search.brave.com/*",
+        "*://*.startpage.com/*"
+      ],
+      "js": ["content_scripts/secure-search.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    },
+    {
+      "matches": [
         "*://mail.google.com/*",
         "*://outlook.live.com/*",
         "*://outlook.office.com/*",
@@ -95,7 +107,8 @@
         "icons/*",
         "dashboard/*",
         "popup/*",
-        "shared/*"
+        "shared/*",
+        "interstitial/*"
       ],
       "matches": ["<all_urls>"]
     }

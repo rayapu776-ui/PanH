@@ -9,7 +9,7 @@
 </head>
 <body>
   <div class="popup-container">
-    <!-- Header -->
+    <!-- Header (Section 5.2) -->
     <header class="header">
       <div class="brand">
         <img src="../icons/icon32.png" alt="panH Logo" class="brand-icon">
@@ -18,13 +18,21 @@
           <span class="brand-edition">AI Edition</span>
         </div>
       </div>
-      <div class="status-badge" id="shieldStatusBadge">
-        <span class="status-dot"></span>
-        <span class="status-text">AI Active</span>
+      <div class="header-right">
+        <div class="status-badge" id="shieldStatusBadge">
+          <span class="status-dot"></span>
+          <span class="status-text" id="statusBadgeText">AI Active</span>
+        </div>
+        <button class="btn-settings-shortcut" id="btnSettingsShortcut" title="Open Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="settings-icon">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        </button>
       </div>
     </header>
 
-    <!-- Protection Score Card -->
+    <!-- Current Site Card (Section 5.2) -->
     <section class="score-card">
       <div class="score-circle-wrapper">
         <svg class="score-circle" viewBox="0 0 100 100">
@@ -37,14 +45,15 @@
       </div>
       <div class="score-info">
         <div class="rating-badge-row">
-          <h2 class="score-rating" id="siteScoreRating">Good protection</h2>
-          <span class="ai-shield-tag">Shielded</span>
+          <h2 class="score-rating" id="siteScoreRating">Protected</h2>
+          <span class="status-pill" id="siteStatusPill">Protected</span>
         </div>
         <p class="site-hostname" id="siteHostname">news-site.com</p>
+        <span class="methodology-label">Methodology: Local Signal Audit (0-100)</span>
       </div>
     </section>
 
-    <!-- Metrics List -->
+    <!-- 4 Counters (Section 5.2) -->
     <section class="metrics-list">
       <div class="metric-row">
         <div class="metric-label">
@@ -70,6 +79,18 @@
       <div class="metric-row">
         <div class="metric-label">
           <svg class="metric-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          <span>Suspicious requests</span>
+        </div>
+        <span class="metric-badge badge-threats" id="suspiciousCount">3</span>
+      </div>
+
+      <div class="metric-row">
+        <div class="metric-label">
+          <svg class="metric-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10" />
             <path d="M12 8v4m0 4h.01" />
           </svg>
@@ -79,11 +100,47 @@
       </div>
     </section>
 
-    <!-- Quick Toggles -->
+    <!-- Site-Level Control (Section 2.2 & 5.2) -->
+    <section class="site-control-card">
+      <div class="site-control-header">
+        <div class="site-control-text">
+          <span class="site-control-title">Site Protection</span>
+          <span class="site-control-sub" id="siteControlStatus">Active for this domain</span>
+        </div>
+        <button class="btn-pause-site" id="btnPauseSite">
+          <span id="btnPauseSiteText">Pause for Site</span>
+        </button>
+      </div>
+      <button class="btn-report-broken" id="btnReportBroken">Report a broken page</button>
+    </section>
+
+    <!-- Quick Controls (Section 5.2) -->
     <section class="toggles-section">
       <div class="toggle-row">
         <div class="toggle-info-col">
-          <span class="toggle-label">Fingerprint shield</span>
+          <span class="toggle-label">Ad Blocking</span>
+          <span class="toggle-sub">DNR + Cosmetic hiding</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggleAdBlocking" checked>
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info-col">
+          <span class="toggle-label">Tracker Shield</span>
+          <span class="toggle-sub">Cross-site telemetry block</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggleTrackerShield" checked>
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info-col">
+          <span class="toggle-label">Fingerprint Shield</span>
           <span class="toggle-sub">Spoofs Canvas & WebGL</span>
         </div>
         <label class="switch">
@@ -94,19 +151,8 @@
 
       <div class="toggle-row">
         <div class="toggle-info-col">
-          <span class="toggle-label">Secure search</span>
-          <span class="toggle-sub">Purges UTM & click IDs</span>
-        </div>
-        <label class="switch">
-          <input type="checkbox" id="toggleSecureSearch">
-          <span class="slider round"></span>
-        </label>
-      </div>
-
-      <div class="toggle-row">
-        <div class="toggle-info-col">
           <span class="toggle-label">AI Threat Guardian</span>
-          <span class="toggle-sub">Scores unknown trackers</span>
+          <span class="toggle-sub">Heuristic risk scoring</span>
         </div>
         <label class="switch">
           <input type="checkbox" id="toggleAIGuardian" checked>
@@ -115,7 +161,7 @@
       </div>
     </section>
 
-    <!-- Why Blocked Banner -->
+    <!-- Why Blocked Banner (Section 5.2) -->
     <div class="why-blocked-box" id="whyBlockedBox">
       <div class="why-blocked-header">
         <svg class="why-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -123,7 +169,7 @@
           <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3m0 4h.01" />
         </svg>
         <strong>Why blocked?</strong>
-        <span class="ai-sparkle">✨ AI</span>
+        <span class="ai-sparkle">✨ AI Advisor</span>
       </div>
       <p class="why-blocked-text" id="whyBlockedText">adnet-x.com tried to follow you across sites. Ask advisor</p>
       <div class="why-actions-row">
@@ -150,14 +196,14 @@
       </div>
     </div>
 
-    <!-- Footer Actions -->
+    <!-- Primary Action: Open Full Dashboard (Section 5.2) -->
     <footer class="footer">
       <button class="btn-dashboard" id="btnOpenDashboard">
         <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="7" height="9" rx="1" />
-          <rect x="14" y="3" width="7" height="5" rx="1" />
-          <rect x="14" y="12" width="7" height="9" rx="1" />
-          <rect x="3" y="16" width="7" height="5" rx="1" />
+          <rect x="3" y="3" width="7" height="9" />
+          <rect x="14" y="3" width="7" height="5" />
+          <rect x="14" y="12" width="7" height="9" />
+          <rect x="3" y="16" width="7" height="5" />
         </svg>
         <span>Open Full Dashboard</span>
       </button>

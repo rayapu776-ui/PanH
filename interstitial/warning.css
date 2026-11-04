@@ -1,0 +1,325 @@
+/* panH Threat Guardian Interstitial Warning Page */
+:root {
+  --bg-app: #0B1426;
+  --bg-secondary: #101C33;
+  --surface: #17263D;
+  --surface-hover: #1e3352;
+  --primary: #27B7D6;
+  --primary-hover: #3dd2f1;
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --text-primary: #F8FAFC;
+  --text-secondary: #A9B8CA;
+  --border-color: rgba(255, 255, 255, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.warning-shell {
+  width: 100%;
+  max-width: 680px;
+}
+
+.warning-card {
+  background-color: var(--surface);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 16px;
+  padding: 36px 38px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 30px rgba(239, 68, 68, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.shield-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.shield-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shield-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--danger);
+}
+
+.brand-tag {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-name {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #38bdf8 0%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-edition {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--danger);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.warning-title {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+  line-height: 1.25;
+}
+
+.warning-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.target-box {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.target-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.target-url {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13.5px;
+  color: var(--primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.evidence-panel {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.evidence-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.risk-badge {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.confidence-badge {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.source-timestamp {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-left: auto;
+}
+
+.reasons-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.reasons-list li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+.reasons-list li::before {
+  content: "•";
+  position: absolute;
+  left: 4px;
+  color: var(--danger);
+  font-weight: bold;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.btn-primary {
+  flex: 1;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35);
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.btn-secondary {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+/* Override Panel */
+.override-panel {
+  background-color: rgba(15, 23, 42, 0.7);
+  border: 1px dashed rgba(239, 68, 68, 0.4);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 6px;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.override-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--warning);
+  margin-bottom: 4px;
+}
+
+.override-desc {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.override-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-danger-outline {
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: #fca5a5;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-danger-outline:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-outline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+

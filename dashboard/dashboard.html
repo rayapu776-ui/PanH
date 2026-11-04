@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>panH - Privacy & Anonymity Network Hub</title>
+  <title>panH AI Edition - Privacy & Threat Protection Platform</title>
   <link rel="stylesheet" href="dashboard.css">
   <script src="../shared/panh-polyfill.js"></script>
 </head>
 <body>
   <div class="app-layout">
-    <!-- Sidebar Navigation -->
+    <!-- Sidebar Navigation (Section 5.3) -->
     <aside class="sidebar">
       <div class="sidebar-brand">
         <img src="../icons/icon48.png" alt="panH Logo" class="brand-logo">
         <div class="brand-text">
           <h1 class="brand-title">panH</h1>
-          <span class="brand-sub">Privacy Hub • AI Edition</span>
+          <span class="brand-sub">AI Edition • Platform</span>
         </div>
       </div>
 
@@ -35,7 +35,7 @@
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
           <span>Trackers & AI</span>
-          <span class="nav-badge" id="navSuspectsBadge">7</span>
+          <span class="nav-badge" id="navSuspectsBadge" style="display: none;">0</span>
         </button>
 
         <button class="nav-item" data-tab="search">
@@ -54,12 +54,19 @@
           <span>Email Privacy</span>
         </button>
 
-        <button class="nav-item" data-tab="advisor">
+        <button class="nav-item" data-tab="linkscanner">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
           </svg>
-          <span>AI Advisor</span>
-          <span class="ai-spark-pill">AI</span>
+          <span>Link Scanner</span>
+        </button>
+
+        <button class="nav-item" data-tab="activity">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
+          <span>Activity</span>
         </button>
 
         <button class="nav-item" data-tab="settings">
@@ -69,20 +76,29 @@
           </svg>
           <span>Settings</span>
         </button>
+
+        <button class="nav-item" data-tab="about">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+          <span>About & Help</span>
+        </button>
       </nav>
 
       <div class="sidebar-footer">
         <div class="protection-pill">
           <span class="live-pulse"></span>
-          <span id="sidebarStatusText">AI Shields Active</span>
+          <span id="sidebarStatusText">AI Threat Guardian Active</span>
         </div>
-        <p class="version-label">v1.0.0 • Manifest V3 • Universal</p>
+        <p class="version-label">panH AI Edition v1.0 • Manifest V3</p>
       </div>
     </aside>
 
     <!-- Main Content Area -->
     <main class="main-content">
-      <!-- Top Bar -->
+      <!-- Top Bar (Section 5.4) -->
       <header class="topbar">
         <div class="topbar-title-group">
           <h2 class="view-title" id="pageTitle">Overview</h2>
@@ -103,70 +119,70 @@
         </div>
       </header>
 
-      <!-- TAB 1: OVERVIEW -->
+      <!-- TAB 1: OVERVIEW (Section 5.3 & 5.4) -->
       <section class="tab-panel active" id="tab-overview">
-        <!-- 4 Stat Cards Matching PDF Page 2 Mockup + Privacy Index -->
+        <!-- 4 Metric Cards (Section 5.4) -->
         <div class="stats-grid">
           <div class="stat-card">
-            <span class="stat-number stat-trackers" id="statTrackersBlocked">1,284</span>
+            <span class="stat-number stat-trackers" id="statTrackersBlocked">0</span>
             <span class="stat-label">Trackers blocked</span>
             <div class="stat-trend positive">
-              <span>&uparrow; 14% vs yesterday</span>
+              <span>&uparrow; Real-time network blocks</span>
             </div>
           </div>
 
           <div class="stat-card">
-            <span class="stat-number stat-ads" id="statAdsBlocked">3,902</span>
+            <span class="stat-number stat-ads" id="statAdsBlocked">0</span>
             <span class="stat-label">Ads blocked</span>
             <div class="stat-trend positive">
-              <span>&uparrow; 28% data saved</span>
+              <span>&uparrow; Bandwidth & latency saved</span>
             </div>
           </div>
 
           <div class="stat-card">
-            <span class="stat-number stat-suspects" id="statNewSuspects">7</span>
-            <span class="stat-label">New suspects</span>
+            <span class="stat-number stat-suspects" id="statNewSuspects">0</span>
+            <span class="stat-label">New threats & suspects</span>
             <div class="stat-trend alert">
-              <span>Scored by AI</span>
+              <span>Scored by AI Heuristics</span>
             </div>
           </div>
 
           <div class="stat-card">
-            <span class="stat-number stat-health" id="statPrivacyHealth">94%</span>
+            <span class="stat-number stat-health" id="statPrivacyHealth">100%</span>
             <span class="stat-label">Privacy Health Index</span>
             <div class="stat-trend positive">
-              <span>Identity Shielded</span>
+              <span>Identity Masked</span>
             </div>
           </div>
         </div>
 
-        <!-- AI Executive Briefing Card -->
+        <!-- AI Executive Briefing Card (Observable Evidence Only - Section 5.4) -->
         <div class="card ai-briefing-card" id="aiBriefingCard">
           <div class="card-header">
             <div class="header-left">
               <div class="ai-title-row">
-                <span class="ai-badge-spark">✨ AI Executive Briefing</span>
+                <span class="ai-badge-spark">✨ AI Threat Assessment</span>
                 <span class="risk-pill" id="briefingRiskPill">Protected Posture</span>
               </div>
-              <h3 class="card-title mt-1" id="briefingTitle">Live Browser Privacy Assessment</h3>
+              <h3 class="card-title mt-1" id="briefingTitle">Live Browser Privacy Status</h3>
             </div>
             <button class="btn-primary btn-sm" id="btnBriefingAction">1-Click AI Optimization</button>
           </div>
           <div class="briefing-content">
             <ul class="briefing-list" id="briefingList">
-              <li>Severed 23 third-party ad & telemetry requests attempting cross-site user synchronization.</li>
+              <li>Severed third-party ad & telemetry requests attempting cross-site user synchronization.</li>
               <li>Neutralized Canvas and WebGL graphics fingerprint queries with cryptographic micro-noise.</li>
               <li>First-party cookies inspected: No unmitigated cross-domain UUIDs detected.</li>
             </ul>
           </div>
         </div>
 
-        <!-- Activity Chart Section -->
+        <!-- Activity Chart Section (Today / 7 Days / 30 Days - Section 5.4) -->
         <div class="card chart-card">
           <div class="card-header">
             <div class="header-left">
               <h3 class="card-title">Interception Activity</h3>
-              <p class="card-desc">Volume of blocked trackers and ads across sessions</p>
+              <p class="card-desc">Volume of blocked network requests (Local declarative processing)</p>
             </div>
             <div class="chart-controls">
               <div class="chart-legend">
@@ -174,8 +190,8 @@
                 <span class="legend-item"><span class="legend-color legend-trackers"></span> Trackers</span>
               </div>
               <div class="timeframe-selector">
-                <button class="tf-btn active" data-tf="today">Today</button>
-                <button class="tf-btn" data-tf="week">7 Days</button>
+                <button class="tf-btn" data-tf="today">Today</button>
+                <button class="tf-btn active" data-tf="week">7 Days</button>
                 <button class="tf-btn" data-tf="month">30 Days</button>
               </div>
             </div>
@@ -185,39 +201,31 @@
           </div>
         </div>
 
-        <!-- Live Activity Log -->
-        <div class="card log-card">
+        <!-- Recent Alerts Summary -->
+        <div class="card">
           <div class="card-header">
-            <div class="header-left">
-              <h3 class="card-title">Live Protection Feed</h3>
-              <p class="card-desc">Transparent explanations for every blocked or shielded event</p>
+            <div>
+              <h3 class="card-title">Recent Privacy & Threat Alerts</h3>
+              <p class="card-desc">Latest security events requiring attention</p>
             </div>
-            <div class="log-filters">
-              <input type="text" class="search-input" id="logSearchInput" placeholder="Filter domain or reason...">
-              <button class="filter-btn active" data-filter="all">All</button>
-              <button class="filter-btn" data-filter="blocked">Blocked</button>
-              <button class="filter-btn" data-filter="suspected">Suspected</button>
-              <button class="filter-btn" data-filter="shielded">Shielded</button>
-              <button class="filter-btn" data-filter="stripped">Stripped</button>
-            </div>
+            <button class="btn-secondary btn-sm" id="btnViewAllActivity">View All Activity &rarr;</button>
           </div>
-
-          <div class="live-log-list" id="liveLogList">
-            <!-- Dynamically populated rows matching spec -->
+          <div class="overview-alerts-list" id="overviewAlertsList">
+            <!-- Dynamically populated top 3 alerts -->
           </div>
         </div>
       </section>
 
-      <!-- TAB 2: TRACKERS & AI SUSPECTS -->
+      <!-- TAB 2: TRACKERS & AI (Section 5.3) -->
       <section class="tab-panel" id="tab-trackers">
         <div class="card">
           <div class="card-header">
             <div>
               <div class="ai-title-row">
-                <h3 class="card-title">AI Behavioral Pattern Scoring & New Suspects</h3>
-                <span class="ai-badge-spark">Machine Learning Evaluated</span>
+                <h3 class="card-title">AI Behavioral Threat Scoring & New Suspects</h3>
+                <span class="ai-badge-spark">Heuristic Classifier</span>
               </div>
-              <p class="card-desc">panH dynamically scores unknown domains by observing cross-site frequency, beacon payloads, and high-entropy parameters.</p>
+              <p class="card-desc">panH dynamically scores unknown domains by evaluating cross-site frequency, beacon payloads, and high-entropy parameters.</p>
             </div>
             <button class="btn-danger btn-sm" id="btnBlockAllSuspects">Block All Suspects</button>
           </div>
@@ -227,6 +235,54 @@
           </div>
         </div>
 
+        <!-- AI Privacy Advisor Chat Panel (Section 2.4 & 4.3) -->
+        <div class="advisor-layout mt-4">
+          <div class="card advisor-chat-card">
+            <div class="card-header">
+              <div class="header-left">
+                <div class="ai-title-row">
+                  <h3 class="card-title">AI Privacy Advisor</h3>
+                  <span class="ai-model-tag" id="chatModelIndicator">Local Neural Engine</span>
+                </div>
+                <p class="card-desc">Ground-truth explanations translated from detection facts. Never claims it visited a site.</p>
+              </div>
+              <span class="privacy-badge">Privacy by Design • Zero History Shared</span>
+            </div>
+
+            <!-- Quick prompt chips -->
+            <div class="prompt-chips">
+              <button class="chip-btn" data-query="Why was pixel.tracker-a.io blocked?">Why was pixel.tracker-a.io blocked?</button>
+              <button class="chip-btn" data-query="How does Fingerprint Shield protect my canvas?">How does Fingerprint Shield protect me?</button>
+              <button class="chip-btn" data-query="What is CNAME cloaking and how does panH detect it?">What is CNAME cloaking?</button>
+              <button class="chip-btn" data-query="Explain how phishing domains use homograph deception">Explain homograph deception</button>
+            </div>
+
+            <div class="chat-history" id="chatHistory">
+              <div class="chat-bubble bot">
+                <div class="bubble-header">panH AI Advisor</div>
+                <div class="bubble-content">
+                  Hello! I am your <strong>panH AI Privacy Advisor</strong>. I translate network request detections, threat indicators, and tracker signals into plain-language explanations.
+                  <br><br>
+                  <em>Privacy Guarantee:</em> Under panH's strict Privacy-by-Design architecture, I only inspect domain names and category counts. I never view your web page text, search content, or browsing history.
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-input-bar">
+              <input type="text" id="chatInput" placeholder="Ask a privacy or threat question...">
+              <button class="btn-primary" id="btnSendChat">Ask Advisor</button>
+            </div>
+          </div>
+
+          <div class="card advisor-rules-card">
+            <h3 class="card-title mb-2">Live Site Advisor Tips</h3>
+            <div class="tips-container" id="tipsContainer">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Filter Rulesets Grid -->
         <div class="card mt-4">
           <div class="card-header">
             <div>
@@ -260,13 +316,13 @@
         </div>
       </section>
 
-      <!-- TAB 3: SECURE SEARCH -->
+      <!-- TAB 3: SECURE SEARCH (Section 2.5 & 5.3) -->
       <section class="tab-panel" id="tab-search">
         <div class="card">
           <div class="card-header">
             <div>
               <h3 class="card-title">Secure & Faster Search Engine</h3>
-              <p class="card-desc">Search without query profiling, referrer leakage, or commercial tracking parameters.</p>
+              <p class="card-desc">Search safety layer: Annotates search result links, suppresses referrer leakage, and strips commercial tracking tags.</p>
             </div>
           </div>
 
@@ -292,6 +348,17 @@
           <div class="toggle-group mt-4">
             <div class="toggle-item">
               <div class="toggle-info">
+                <h4>Search Result Safety Badges</h4>
+                <p>Overlays non-intrusive safety badges (Safe, Caution, Danger) directly on Google, Bing, DuckDuckGo and Brave search results.</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="settingSearchBadges" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
                 <h4>Strip Campaign Parameters (UTM, GCLID, FBCLID, TTCLID)</h4>
                 <p>Removes marketing tracking parameters when navigating outbound search results.</p>
               </div>
@@ -315,13 +382,13 @@
         </div>
       </section>
 
-      <!-- TAB 4: EMAIL PRIVACY -->
+      <!-- TAB 4: EMAIL PRIVACY (Section 2.6 & 5.3) -->
       <section class="tab-panel" id="tab-email">
         <div class="card">
           <div class="card-header">
             <div>
               <h3 class="card-title">Webmail Tracking Protection</h3>
-              <p class="card-desc">Active protection for Gmail, Outlook, Yahoo, and Proton Webmail</p>
+              <p class="card-desc">Active protection for Gmail, Outlook, Yahoo, and Proton Webmail (Behind optional permission, does not inspect message text).</p>
             </div>
           </div>
 
@@ -349,61 +416,183 @@
         </div>
       </section>
 
-      <!-- TAB 5: AI PRIVACY ADVISOR -->
-      <section class="tab-panel" id="tab-advisor">
-        <div class="advisor-layout">
-          <!-- Chat Section -->
-          <div class="card advisor-chat-card">
-            <div class="card-header">
-              <div class="header-left">
-                <div class="ai-title-row">
-                  <h3 class="card-title">AI Privacy Advisor</h3>
-                  <span class="ai-model-tag" id="chatModelIndicator">Local Neural Engine</span>
-                </div>
-                <p class="card-desc">Ask questions about blocked trackers, site risks, and digital identity defense.</p>
+      <!-- TAB 5: LINK SCANNER (NEW! Section 2.3, 5.3, 8.2) -->
+      <section class="tab-panel" id="tab-linkscanner">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="ai-title-row">
+                <h3 class="card-title">Manual Link & Threat Scanner</h3>
+                <span class="ai-badge-spark">Threat Guardian API</span>
               </div>
-              <span class="privacy-badge">Privacy by Design • Zero History Shared</span>
-            </div>
-
-            <!-- Quick prompt chips -->
-            <div class="prompt-chips">
-              <button class="chip-btn" data-query="Why was pixel.tracker-a.io blocked?">Why was pixel.tracker-a.io blocked?</button>
-              <button class="chip-btn" data-query="How does Fingerprint Shield protect my canvas?">How does Fingerprint Shield protect me?</button>
-              <button class="chip-btn" data-query="What is CNAME cloaking and how does panH detect it?">What is CNAME cloaking?</button>
-              <button class="chip-btn" data-query="How do email spy pixels work?">How do email spy pixels work?</button>
-              <button class="chip-btn" data-query="Audit the current site privacy posture">Audit site privacy</button>
-            </div>
-
-            <div class="chat-history" id="chatHistory">
-              <div class="chat-bubble bot">
-                <div class="bubble-header">panH AI Advisor</div>
-                <div class="bubble-content">
-                  Hello! I am your <strong>panH AI Privacy Advisor</strong>. I analyze hidden trackers, browser fingerprinting attempts, and data brokers behind the scenes—and explain everything in plain language.
-                  <br><br>
-                  <em>Privacy Guarantee:</em> Under panH's strict Privacy-by-Design architecture, I only inspect domain names and category counts. I never view your web page text, search content, or browsing history.
-                </div>
-              </div>
-            </div>
-
-            <div class="chat-input-bar">
-              <input type="text" id="chatInput" placeholder="Ask a privacy question (e.g. Why was adnet-x blocked?)...">
-              <button class="btn-primary" id="btnSendChat">Ask Advisor</button>
+              <p class="card-desc">Inspect any URL destination before navigation. Normalizes URLs, detects deceptive punycode, and checks local threat indicators.</p>
             </div>
           </div>
 
-          <!-- Rule-Based Advice Panel -->
-          <div class="card advisor-rules-card">
-            <h3 class="card-title mb-2">Live Site Advisor Tips</h3>
-            <div class="tips-container" id="tipsContainer">
-              <!-- Dynamically populated -->
+          <!-- URL Input Bar -->
+          <div class="scanner-input-bar">
+            <input type="text" id="scannerUrlInput" placeholder="Paste or type a URL to inspect (e.g. login-secure-account-verify.xyz)..." class="scanner-input">
+            <button class="btn-primary" id="btnScanUrl">Inspect Link</button>
+          </div>
+
+          <!-- Sample Link Chips -->
+          <div class="scanner-quick-chips">
+            <span class="quick-chip-label">Try test URLs:</span>
+            <button class="chip-btn" data-url="https://login-secure-account-verify.xyz/auth">Phishing Lure (.xyz)</button>
+            <button class="chip-btn" data-url="http://192.168.1.100/verify">Raw IP Hostname</button>
+            <button class="chip-btn" data-url="https://update-browser-critical-patch.top">Fake Update (.top)</button>
+            <button class="chip-btn" data-url="https://en.wikipedia.org/wiki/Privacy">Verified Safe Site</button>
+          </div>
+
+          <!-- Scan Result Card (Section 8.2 Schema Display) -->
+          <div class="scan-result-card" id="scanResultCard" style="display: none;">
+            <div class="scan-result-header">
+              <div class="scan-headline">
+                <span class="scan-verdict-badge" id="scanVerdictBadge">Safe</span>
+                <span class="scan-hostname" id="scanResultHostname">domain.com</span>
+              </div>
+              <div class="scan-meta-right">
+                <span class="scan-confidence" id="scanConfidenceBadge">95% Confidence</span>
+                <span class="scan-time" id="scanTimestamp">Checked just now</span>
+              </div>
             </div>
+
+            <div class="scan-reasons-box">
+              <span class="scan-reasons-title">Risk Assessment & Signals:</span>
+              <ul class="scan-reasons-list" id="scanReasonsList">
+                <li>No suspicious homographs or threat indicators detected.</li>
+              </ul>
+            </div>
+
+            <div class="scan-recommendation-row">
+              <span class="rec-label">Recommended Action:</span>
+              <span class="rec-value" id="scanActionBadge">Allow with monitoring</span>
+              <button class="btn-secondary btn-sm" id="btnToggleRawJson">View Raw JSON (Schema v1.0)</button>
+            </div>
+
+            <!-- Raw JSON Schema Preview (Section 8.2) -->
+            <pre class="raw-json-viewer" id="rawJsonViewer" style="display: none;"></pre>
+          </div>
+        </div>
+
+        <!-- Scan History Table -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Recent Link Inspection History</h3>
+              <p class="card-desc">Saved locally in your browser storage</p>
+            </div>
+            <button class="btn-secondary btn-sm" id="btnClearScanHistory">Clear History</button>
+          </div>
+          <div class="scan-history-list" id="scanHistoryList">
+            <!-- Dynamically populated -->
           </div>
         </div>
       </section>
 
-      <!-- TAB 6: SETTINGS -->
-      <section class="tab-panel" id="tab-settings">
+      <!-- TAB 6: ACTIVITY (NEW! Section 5.3 & 5.4) -->
+      <section class="tab-panel" id="tab-activity">
         <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Local Protection Event Timeline</h3>
+              <p class="card-desc">Audit log of intercepted requests, shielded fingerprints, and stripped tags.</p>
+            </div>
+            <div class="log-filters">
+              <input type="text" class="search-input" id="activitySearchInput" placeholder="Search domain, site, or reason...">
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="blocked">Blocked</button>
+              <button class="filter-btn" data-filter="suspected">Suspected</button>
+              <button class="filter-btn" data-filter="shielded">Shielded</button>
+              <button class="filter-btn" data-filter="stripped">Stripped</button>
+            </div>
+          </div>
+
+          <!-- Events Table (Section 5.4) -->
+          <div class="table-container">
+            <table class="activity-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Action</th>
+                  <th>Domain</th>
+                  <th>Site Domain</th>
+                  <th>Category</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody id="activityTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="actions-row mt-3">
+            <button class="btn-secondary" id="btnExportActivity">Export Event Log (JSON)</button>
+            <button class="btn-danger" id="btnClearActivity">Clear Event Log</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7: SETTINGS (Enhanced! Section 2.2 & 5.3) -->
+      <section class="tab-panel" id="tab-settings">
+        <!-- Protection Profiles (Section 5.3) -->
+        <div class="card">
+          <h3 class="card-title">Protection Profiles</h3>
+          <p class="card-desc">Choose a pre-configured security posture or customize individual settings.</p>
+          <div class="profiles-grid mt-3">
+            <div class="profile-box active" data-profile="balanced">
+              <div class="profile-header">
+                <span class="profile-name">Standard Protection</span>
+                <span class="profile-badge">Active</span>
+              </div>
+              <p class="profile-desc">Blocks ads, trackers, and high-risk threats without breaking websites.</p>
+            </div>
+            <div class="profile-box" data-profile="strict">
+              <div class="profile-header">
+                <span class="profile-name">Strict Armor</span>
+              </div>
+              <p class="profile-desc">Aggressive blocking of all telemetry, strict canvas micro-noise, and warning on all unknown links.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Site Exceptions: Allow-List & Block-List (Section 2.2 & 5.3) -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Site Exceptions (Allow-List & Block-List)</h3>
+              <p class="card-desc">Manage site-level permissions. Allow-listed sites bypass blocking rules for compatibility.</p>
+            </div>
+          </div>
+
+          <!-- Allow-List Section -->
+          <div class="exceptions-section">
+            <h4 class="exceptions-subtitle">Site Allow-List (Exempt from blocking)</h4>
+            <div class="input-add-group">
+              <input type="text" id="allowListInput" placeholder="Enter domain to allow (e.g. trusted-partner.com)..." class="form-input">
+              <button class="btn-secondary" id="btnAddAllowList">Add to Allow-List</button>
+            </div>
+            <div class="chips-container mt-2" id="allowListChips">
+              <!-- Dynamically populated chips -->
+            </div>
+          </div>
+
+          <!-- Block-List Section -->
+          <div class="exceptions-section mt-4">
+            <h4 class="exceptions-subtitle">Custom Block-List (Always block)</h4>
+            <div class="input-add-group">
+              <input type="text" id="blockListInput" placeholder="Enter domain to block permanently..." class="form-input">
+              <button class="btn-danger" id="btnAddBlockList">Add to Block-List</button>
+            </div>
+            <div class="chips-container mt-2" id="blockListChips">
+              <!-- Dynamically populated chips -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Core Module Toggles -->
+        <div class="card mt-4">
           <h3 class="card-title">Protection Modules</h3>
           <div class="toggle-group mt-3">
             <div class="toggle-item">
@@ -452,8 +641,8 @@
 
             <div class="toggle-item">
               <div class="toggle-info">
-                <h4>AI Behavioral Threat Guardian</h4>
-                <p>Runs machine-learning feature scoring on unknown domains in real-time</p>
+                <h4>AI Threat Guardian & Interstitial Warnings</h4>
+                <p>Intercepts navigation to suspected phishing/malware domains with warning interstitial</p>
               </div>
               <label class="switch">
                 <input type="checkbox" id="settingAIGuardian" checked>
@@ -463,36 +652,118 @@
           </div>
         </div>
 
+        <!-- Fullstack Backend Gateway Connection -->
         <div class="card mt-4">
-          <h3 class="card-title">AI Privacy Advisor Settings</h3>
-          <p class="card-desc">panH includes a built-in neural reasoning engine (100% offline). You can also connect Google Gemini API for cloud intelligence.</p>
-          
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Fullstack Backend Gateway</h3>
+              <p class="card-desc">Connect the extension to the local panH Node.js backend server (runs via <code>npm run server</code>).</p>
+            </div>
+            <span class="badge-status-on" id="serverStatusBadge">Checking...</span>
+          </div>
+
+          <div class="settings-form mt-3">
+            <label class="form-label" for="serverUrlInput">Backend Server Gateway URL</label>
+            <div class="api-key-group">
+              <input type="text" id="serverUrlInput" class="form-input" placeholder="http://localhost:3000" value="http://localhost:3000">
+              <button class="btn-secondary" id="btnTestServer">Test Connection</button>
+              <button class="btn-primary" id="btnSaveServer">Save URL</button>
+            </div>
+            <span class="form-hint" id="serverUrlStatus">Provides centralized threat analysis, sync, and AI advisor proxy.</span>
+          </div>
+        </div>
+
+        <!-- AI Advisor & Cloud Settings -->
+        <div class="card mt-4">
+          <h3 class="card-title">AI Privacy Advisor Intelligence Mode</h3>
+          <p class="card-desc">panH analyzes telemetry and gives real-time advice to protect you. Add your AI API key below (or set <code>GEMINI_API_KEY</code> in <code>server/.env</code>) to power conversational advice.</p>
+
           <div class="settings-form mt-3">
             <label class="form-label">AI Engine Mode</label>
             <div class="radio-group-horizontal">
               <label class="radio-label">
-                <input type="radio" name="aiModelPref" value="auto" checked> Automatic (Local + Gemini when available)
+                <input type="radio" name="aiModelPref" value="auto" checked> Automatic (Local + AI API when key is added)
               </label>
               <label class="radio-label">
                 <input type="radio" name="aiModelPref" value="local_only"> Local Engine Only (100% Offline)
               </label>
             </div>
 
-            <label class="form-label mt-3" for="geminiApiKey">Google Gemini API Key (Optional)</label>
+            <label class="form-label mt-3" for="geminiApiKey">AI API Key (Google Gemini or OpenAI)</label>
             <div class="api-key-group">
-              <input type="password" id="geminiApiKey" class="form-input" placeholder="AIzaSy...">
+              <input type="password" id="geminiApiKey" class="form-input" placeholder="Enter your Gemini AIzaSy... or OpenAI sk-... key">
               <button class="btn-secondary" id="btnTestApiKey">Test Connection</button>
               <button class="btn-primary" id="btnSaveApiKey">Save Key</button>
             </div>
-            <span class="form-hint" id="apiKeyStatus">Default: High-speed local privacy intelligence engine</span>
+            <span class="form-hint" id="apiKeyStatus">When an AI key is saved, the Advisor uses live generative AI to explain threats and recommend actions.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 8: ABOUT & HELP (NEW! Section 5.3 & 7.3) -->
+      <section class="tab-panel" id="tab-about">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">panH AI Edition</h3>
+              <p class="card-desc">Browser Privacy, Ad Blocking & Threat Protection Platform (Version 1.0 | 04 November 2026)</p>
+            </div>
+            <span class="badge-status-on">Manifest V3 Certified</span>
+          </div>
+
+          <div class="about-grid mt-2">
+            <div class="about-item">
+              <strong>Core Architecture:</strong>
+              <span>Local browser-native declarativeNetRequest + WebExtension Service Worker</span>
+            </div>
+            <div class="about-item">
+              <strong>Authors & Team:</strong>
+              <span>Team VijetaX • BTech CSE, Sharda University</span>
+            </div>
+            <div class="about-item">
+              <strong>Data Privacy Principle:</strong>
+              <span>Zero raw browsing history uploaded. 100% local processing by default.</span>
+            </div>
           </div>
         </div>
 
+        <!-- Diagnostics & Health Self-Test Tool -->
         <div class="card mt-4">
-          <h3 class="card-title">Data & Maintenance</h3>
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">System Diagnostics & Self-Test</h3>
+              <p class="card-desc">Verify local rulesets, storage integrity, and content script bridge.</p>
+            </div>
+            <button class="btn-primary btn-sm" id="btnRunDiagnostics">Run Diagnostics</button>
+          </div>
+
+          <div class="diagnostics-panel" id="diagnosticsPanel">
+            <div class="diag-row">
+              <span class="diag-label">declarativeNetRequest Rules:</span>
+              <span class="diag-status" id="diagDnrStatus">Ready (3 rulesets loaded)</span>
+            </div>
+            <div class="diag-row">
+              <span class="diag-label">Local Threat Database:</span>
+              <span class="diag-status" id="diagThreatDbStatus">Active (Phishing & Scam heuristics ready)</span>
+            </div>
+            <div class="diag-row">
+              <span class="diag-label">Fingerprint Shield Status:</span>
+              <span class="diag-status" id="diagFpStatus">Micro-noise injection ready</span>
+            </div>
+            <div class="diag-row">
+              <span class="diag-label">Storage Integrity:</span>
+              <span class="diag-status" id="diagStorageStatus">Passed</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emergency Kill-Switch & Rollback (Section 7.3) -->
+        <div class="card mt-4">
+          <h3 class="card-title">Emergency Rollback & Maintenance</h3>
+          <p class="card-desc">Section 7.3 Operational Controls: Reset all rules and temporary overrides in case of site breakage.</p>
           <div class="actions-row mt-3">
-            <button class="btn-secondary" id="btnExportData">Export Privacy Logs (JSON)</button>
-            <button class="btn-danger" id="btnClearLogs">Clear Log Feed</button>
+            <button class="btn-secondary" id="btnResetAllOverrides">Reset Temporary Overrides</button>
+            <button class="btn-danger" id="btnEmergencyReset">Emergency Factory Reset</button>
           </div>
         </div>
       </section>

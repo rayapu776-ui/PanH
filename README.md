@@ -1,83 +1,144 @@
-# 𝓟𝓪𝓷𝓗 — Privacy & Anonymity Network Hub (AI & Universal Edition)
+# 𝓟𝓪𝓷𝓗 — Privacy & Anonymity Network Hub (Fullstack AI Edition)
 
-> **"One privacy layer for your browser. See who tracks you. Stop them. Know why."**
+> **"One fullstack privacy layer for your browser. See who tracks you. Stop them. Know why."**
 
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-blue.svg)](https://developer.chrome.com/docs/extensions/mv3/intro/)
+[![Fullstack Gateway](https://img.shields.io/badge/Backend-Node.js%20Gateway-green.svg)]()
 [![AI Threat Guardian](https://img.shields.io/badge/AI-Heuristic%20Classifier-purple.svg)]()
 [![Privacy by Design](https://img.shields.io/badge/Privacy-By%20Design-emerald.svg)]()
 [![Platform](https://img.shields.io/badge/Browsers-Chrome%20%7C%20Edge%20%7C%20Firefox%20%7C%20Brave%20%7C%20Opera-informational.svg)]()
-[![OS](https://img.shields.io/badge/OS-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)]()
 
 **Team Name:** VijetaX  
 **Problem Track:** AI & Intelligent Systems  
 **Authors:** Apu Ray, Nancy, Prottoy Sarker, Hasontika Roy (BTech. CSE, Sharda University)  
-**Version:** v1.1.0 (AI Perfect Edition)
+**Version:** v1.0.0 (Fullstack AI Edition)
 
 ---
 
-## 🛡️ Overview
+## 🛡️ Fullstack System Architecture
 
-Most people are tracked by dozens of third-party scripts on every website. Existing blockers either work silently without explaining what happened, or require deep technical knowledge. Furthermore, new trackers appear faster than static blocklists can update.
-
-**panH** is a unified, cross-browser privacy extension featuring an **AI Behavioral Threat Engine** that blocks trackers and ads, shields your browser fingerprint, secures your searches and email, and tells you **what it did and what to do next in plain English**.
+panH is structured as a complete, modern Fullstack platform:
 
 ```
-                ┌────────────────────────────────────────────────────────┐
-                │          panH UNIVERSAL PRIVACY ENGINE                 │
-                │        (Cross-Browser & Multi-OS Architecture)         │
-                └──────────────────────────┬─────────────────────────────┘
-                                           │
-         ┌──────────────────┬──────────────┴─────┬──────────────────┐
-         ▼                  ▼                    ▼                  ▼
-    ┌─────────┐       ┌───────────┐        ┌───────────┐      ┌───────────┐
-    │  BLOCK  │       │ AI DETECT │        │  PROTECT  │      │   GUIDE   │
-    │  LAYER  │       │ & EXPLAIN │        │ IDENTITY  │      │  & SPEED  │
-    └────┬────┘       └─────┬─────┘        └─────┬─────┘      └─────┬─────┘
-         │                  │                    │                  │
-   • Ads blocker       • AI Behavioral      • Canvas, WebGL,   • Unified
-     (DNR + Cosmetic)    Threat Classifier    & Audio jitter     dashboard
-   • Third-party       • Plain-language     • Secure search    • AI Executive
-     cross-site          explanations for     (strip UTM/gclid)  Briefing
-     tracker blocker     every block        • Email spy pixel  • AI Privacy
-   • First-party CNAME • Confidence &         neutralization     Advisor (chat)
-     cloaking detect     entropy scoring    • Privacy aliases  • Faster search
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       panH FULLSTACK PRIVACY PLATFORM                       │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │
+        ┌──────────────────────────────┴──────────────────────────────┐
+        ▼                                                             ▼
+┌──────────────────────────────────────────┐    ┌──────────────────────────────────────────┐
+│             FRONTEND CLIENT              │    │             BACKEND GATEWAY              │
+│       (Browser Extension - MV3)          │    │       (Node.js Intelligence Server)      │
+├──────────────────────────────────────────┤    ├──────────────────────────────────────────┤
+│ • Toolbar Popup (Live score & 4 counters)│    │ • Port: http://localhost:3000            │
+│ • Full Dashboard (8 functional views)    │    │ • AI Privacy Advisor:                    │
+│ • Threat Interstitial (Malicious warning)│◄──►│   POST /api/v1/ai/advise                 │
+│ • DNR Engine (declarativeNetRequest)     │    │ • Real-Time Threat Scanner:              │
+│ • Content Scripts:                       │    │   POST /api/v1/threats/analyze           │
+│   - Fingerprint Shield (Canvas/WebGL)    │    │ • Threat Registry & Submissions:         │
+│   - First-Party Tracker Harvester        │    │   POST /api/v1/threats/submit            │
+│   - Cosmetic Ad Suppressor               │    │ • Ruleset Sync & Health Diagnostic:      │
+│   - Secure Search & Email Privacy        │    │   GET  /api/v1/rules, GET /api/v1/health │
+└──────────────────────────────────────────┘    └────────────────────┬─────────────────────┘
+                                                                     │
+                                                                     ▼
+                                                ┌──────────────────────────────────────────┐
+                                                │            EXTERNAL AI APIS              │
+                                                │   (Configurable via server/.env)         │
+                                                ├──────────────────────────────────────────┤
+                                                │ • Google Gemini (GEMINI_API_KEY)         │
+                                                │ • OpenAI (OPENAI_API_KEY)                │
+                                                │ • Local Neural Offline Reasoning Engine  │
+                                                └──────────────────────────────────────────┘
 ```
 
 ---
 
-## 🧠 The AI Perfect System Architecture
+## 🚀 How to Run the Fullstack System
 
-### 1. Real-Time AI Behavioral Threat Classifier (`background/ai-classifier.js`)
-- **Multi-Vector Feature Scoring**: Analyzes 7 threat vectors on unlisted domains:
-  1. **Shannon Entropy Analysis**: Detects machine-generated or randomized tracking subdomains.
-  2. **Query Fingerprint Signatures**: Scans for persistent tracking tokens (`uid`, `visitor_id`, `device_fp`, `canvas_hash`).
-  3. **Telemetry Endpoint Detection**: Matches telemetry collection paths (`/collect`, `/pixel`, `/tr`, `/beacon`, `/sync`).
-  4. **Cross-Site Dissemination Index**: Tracks cross-domain frequency across unrelated websites.
-  5. **Hardware Correlation**: Flags domains reading Canvas or WebGL shaders.
-  6. **First-Party Disguised Identifiers**: Inspects cookie lifespans and CNAME subdomains.
-  7. **Asynchronous Beacon Payloads**: Intercepts background beacon and ping telemetry.
-- **AI Output**: Generates an **AI Risk Score** (0–100), **Confidence Percentage** (e.g., 92%), and transparent human-readable reasoning.
+### Step 1: Start the Backend Gateway Server
+You can start the server in development mode with **nodemon** (auto-reloads on code edits):
+```bash
+npm run dev
+```
+Or start in standard production mode:
+```bash
+npm run server
+```
+Or using Node's native file watcher:
+```bash
+npm run dev:watch
+```
 
-### 2. Dual-Engine AI Privacy Advisor (`background/ai-engine.js`)
-- **Engine 1: Built-in Local Neural/Knowledge Engine (Default)**:
-  - 100% offline, zero latency, zero API keys required.
-  - Multi-turn conversational memory explaining trackers, fingerprinting, cookies, privacy laws, and site risks.
-  - **1-Click AI Remediation**: Generates instant action triggers (e.g., *[Block 3 High-Risk Domains]*, *[Enable Strict Shielding]*).
-- **Engine 2: Cloud LLM Integration (Google Gemini 1.5/2.0 Flash / Pro)**:
-  - Users can optionally save their Gemini API key in Settings with a live **"Test Connection"** validator.
-  - **Strict Privacy by Design**: All prompts are sanitized—**never sends web page text, search content, or browsing history**; only sends domain tokens and telemetry counts.
+This launches the panH Backend Gateway at `http://localhost:3000` with the **persistent SQLite database** (`server/data/panh.db`):
+- **Health Check**: `http://localhost:3000/api/v1/health`
+- **Database Diagnostics**: `http://localhost:3000/api/v1/db/diagnostics`
+- **AI Advisor Endpoint**: `POST http://localhost:3000/api/v1/ai/advise`
+- **AI Advice History**: `GET http://localhost:3000/api/v1/ai/history`
+- **Threat Scanner Endpoint**: `POST http://localhost:3000/api/v1/threats/analyze`
+- **Threat Database Registry**: `GET http://localhost:3000/api/v1/threats`
+- **Telemetry Event Store**: `POST /api/v1/events`, `GET /api/v1/events/stats`
 
-### 3. AI Executive Site Auditor
-- Auto-generates a live 3-point briefing for every website:
-  1. What happened behind the scenes (who was blocked, what data they wanted).
-  2. Potential identity exposure risk posture.
-  3. 1-Click AI privacy optimization.
+### Step 2: Configure Your AI API Key (To Enable Live Advice)
+You have two easy ways to add your AI API key:
+
+#### Method A: Server Environment File (Recommended)
+Edit `server/.env` (or copy from `server/.env.example`):
+```env
+# Add your Google Gemini API Key (Get free at: https://aistudio.google.com/app/apikey)
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Or use OpenAI:
+# OPENAI_API_KEY=your_openai_api_key_here
+```
+
+#### Method B: In Browser Extension Dashboard Settings
+1. Open the panH Dashboard -> Navigate to **Settings**.
+2. Scroll to **"AI Privacy Advisor Intelligence Mode"**.
+3. Paste your API key into the key field and click **"Save Key"**.
+4. Click **"Test Connection"** to verify connection.
 
 ---
 
-## 🌐 Universal Cross-Browser & Cross-OS Support
+### Step 3: Load Extension in Your Browser
 
-The extension includes a universal browser polyfill layer (`shared/panh-polyfill.js`) and cross-browser Manifest V3 configuration supporting:
+#### Google Chrome / Microsoft Edge / Brave / Opera:
+1. Navigate to:
+   - Chrome: `chrome://extensions`
+   - Edge: `edge://extensions`
+   - Brave: `brave://extensions`
+2. Enable **Developer mode** (toggle in upper right).
+3. Click **"Load unpacked"** (top left).
+4. Select the project folder:
+   ```
+   c:\Users\rayap\OneDrive\Desktop\PanH
+   ```
+5. Click **Select Folder**. Pin **panH** to your browser toolbar!
+
+#### Mozilla Firefox:
+1. Navigate to `about:debugging#/runtime/this-firefox`.
+2. Click **"Load Temporary Add-on..."**.
+3. Select `manifest.json` in the root of the folder.
+
+---
+
+## 🧹 Zero Demo/Mock Data Policy
+
+All demo artifacts, hardcoded numbers, and fake placeholder delays have been eliminated:
+- **Baseline Telemetry**: Counters start at `0` (`totalTrackersBlocked: 0`, `totalAdsBlocked: 0`, `newSuspectsCount: 0`).
+- **Real-Time Event Audit**: Activity timeline and event table record actual HTTP requests intercepted as you browse.
+- **Dynamic Activity Charts**: The Today / 7-Day / 30-Day chart dynamically computes volume from stored local event logs.
+- **Live AI Advice**: Queries the real AI Advisor endpoint using your configured API key, analyzing actual observable telemetry on the active page.
+
+---
+
+## 🧪 Automated Test Suite
+
+Run the full automated test suite verifying both extension Manifest V3 compliance and backend gateway readiness:
+```bash
+npm test
+```
+All **28 validation checks** pass with 100% success.
 
 | Browser | OS Compatibility | Engine | Status |
 | :--- | :--- | :--- | :--- |

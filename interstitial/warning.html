@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>panH Threat Guardian - Deceptive Site Warning</title>
+  <link rel="stylesheet" href="warning.css">
+  <script src="../shared/panh-polyfill.js"></script>
+</head>
+<body>
+  <div class="warning-shell">
+    <div class="warning-card">
+      <!-- Shield Header -->
+      <div class="shield-header">
+        <div class="shield-badge">
+          <svg class="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        </div>
+        <div class="brand-tag">
+          <span class="brand-name">panH</span>
+          <span class="brand-edition">Threat Guardian</span>
+        </div>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="warning-title" id="warningTitle">Warning: Potential Phishing or Malicious Destination Ahead</h1>
+      <p class="warning-subtitle">
+        panH Threat Guardian intercepted your navigation before this page could load. The destination domain appears designed to deceive visitors or harvest sensitive credentials.
+      </p>
+
+      <!-- Targeted Destination Box -->
+      <div class="target-box">
+        <span class="target-label">Target Destination:</span>
+        <span class="target-url" id="targetUrl">https://example-phishing-site.com</span>
+      </div>
+
+      <!-- Evidence & Risk Breakdown -->
+      <div class="evidence-panel">
+        <div class="evidence-header">
+          <span class="risk-badge" id="riskBadge">High Risk</span>
+          <span class="confidence-badge" id="confidenceBadge">98% Confidence</span>
+          <span class="source-timestamp" id="sourceTimestamp">Live Local Heuristic Analysis</span>
+        </div>
+        <ul class="reasons-list" id="reasonsList">
+          <li>Known phishing credential harvester flagged in threat intelligence feed.</li>
+          <li>Matches deceptive brand impersonation pattern in URL hierarchy.</li>
+        </ul>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="btn-primary" id="btnBackToSafety">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          <span>Return to Safety (Recommended)</span>
+        </button>
+
+        <button class="btn-secondary" id="btnToggleDetails">
+          <span>Show Threat Details</span>
+        </button>
+      </div>
+
+      <!-- Advanced Override Details (Section 4.5 & 4.6) -->
+      <div class="override-panel" id="overridePanel" style="display: none;">
+        <div class="override-warning-box">
+          <h3 class="override-title">⚠️ User Override Notice</h3>
+          <p class="override-desc">
+            Continuing to this site exposes your device to potential credential harvesting, deceptive forms, or malicious script execution. panH will not prevent the site from loading if you proceed.
+          </p>
+        </div>
+
+        <div class="override-actions">
+          <button class="btn-danger-outline" id="btnProceedAnyway">
+            Proceed Anyway (Unsafe)
+          </button>
+          <button class="btn-outline" id="btnAllowListSite">
+            Add Domain to Site Allow-List
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="warning.js"></script>
+</body>
+</html>
+

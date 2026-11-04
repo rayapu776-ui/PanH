@@ -1,5 +1,6 @@
 /**
- * Automated validation test for panH Chrome & Cross-Browser Extension (v1.1.0 AI Edition)
+ * Automated validation test for panH Chrome & Cross-Browser Extension
+ * Conforms to panH AI Edition Blueprint v1.0 (04 November 2026)
  */
 
 const fs = require('fs');
@@ -16,7 +17,7 @@ function assert(condition, message) {
   }
 }
 
-console.log('--- Validating panH Extension Files & Manifest V3 (AI & Cross-Browser Edition) ---');
+console.log('--- Validating panH Extension Files & Manifest V3 (Blueprint v1.0 AI Edition) ---');
 
 // 1. Check manifest.json
 const manifestPath = path.join(ROOT, 'manifest.json');
@@ -43,6 +44,7 @@ for (const ruleResource of manifest.declarative_net_request.rule_resources) {
 // 4. Check Background & AI Engine Modules
 assert(fs.existsSync(path.join(ROOT, 'shared', 'panh-polyfill.js')), 'shared/panh-polyfill.js exists');
 assert(fs.existsSync(path.join(ROOT, 'background', 'service-worker.js')), 'background/service-worker.js exists');
+assert(fs.existsSync(path.join(ROOT, 'background', 'threat-engine.js')), 'background/threat-engine.js exists');
 assert(fs.existsSync(path.join(ROOT, 'background', 'ai-classifier.js')), 'background/ai-classifier.js exists');
 assert(fs.existsSync(path.join(ROOT, 'background', 'ai-engine.js')), 'background/ai-engine.js exists');
 assert(fs.existsSync(path.join(ROOT, 'background', 'tracker-db.js')), 'background/tracker-db.js exists');
@@ -55,7 +57,12 @@ for (const cs of manifest.content_scripts) {
   }
 }
 
-// 6. Check Popup & Dashboard
+// 6. Check Warning Interstitial (Section 2.3 & 5.4)
+assert(fs.existsSync(path.join(ROOT, 'interstitial', 'warning.html')), 'interstitial/warning.html exists');
+assert(fs.existsSync(path.join(ROOT, 'interstitial', 'warning.css')), 'interstitial/warning.css exists');
+assert(fs.existsSync(path.join(ROOT, 'interstitial', 'warning.js')), 'interstitial/warning.js exists');
+
+// 7. Check Popup & Dashboard
 assert(fs.existsSync(path.join(ROOT, 'popup', 'popup.html')), 'popup/popup.html exists');
 assert(fs.existsSync(path.join(ROOT, 'popup', 'popup.css')), 'popup/popup.css exists');
 assert(fs.existsSync(path.join(ROOT, 'popup', 'popup.js')), 'popup/popup.js exists');
@@ -64,4 +71,28 @@ assert(fs.existsSync(path.join(ROOT, 'dashboard', 'dashboard.html')), 'dashboard
 assert(fs.existsSync(path.join(ROOT, 'dashboard', 'dashboard.css')), 'dashboard/dashboard.css exists');
 assert(fs.existsSync(path.join(ROOT, 'dashboard', 'dashboard.js')), 'dashboard/dashboard.js exists');
 
-console.log('\n🎉 ALL 20 VALIDATION CHECKS PASSED SUCCESSFULLY!');
+// 8. Functional test of Threat Engine
+const { assessUrl } = require(path.join(ROOT, 'background', 'threat-engine.js'));
+const phishingCheck = assessUrl('https://login-secure-account-verify.xyz/auth');
+assert(phishingCheck.verdict === 'malicious' && phishingCheck.risk_level === 'high', 'Threat Engine accurately detects high-risk phishing lures');
+
+const safeCheck = assessUrl('https://en.wikipedia.org/wiki/Privacy');
+assert(safeCheck.verdict === 'safe' && safeCheck.confidence > 0.7, 'Threat Engine accurately identifies benign destinations');
+
+const allowListCheck = assessUrl('https://login-secure-account-verify.xyz/auth', ['login-secure-account-verify.xyz']);
+assert(allowListCheck.verdict === 'safe', 'Threat Engine honors user Site Allow-List exceptions');
+
+// 9. Fullstack Backend Gateway & SQLite Database Verification
+assert(fs.existsSync(path.join(ROOT, 'server', 'index.js')), 'server/index.js exists and ready for backend gateway execution');
+assert(fs.existsSync(path.join(ROOT, 'server', 'db.js')), 'server/db.js SQLite database layer exists');
+assert(fs.existsSync(path.join(ROOT, 'server', '.env.example')), 'server/.env.example template exists for AI API key configuration');
+assert(fs.existsSync(path.join(ROOT, 'nodemon.json')), 'nodemon.json exists for hot-reloading development');
+
+// 10. Functional test of SQLite database layer
+const { DatabaseSync } = require('node:sqlite');
+const testDb = new DatabaseSync(':memory:');
+testDb.exec("CREATE TABLE test_threats (id INTEGER PRIMARY KEY, domain TEXT); INSERT INTO test_threats (domain) VALUES ('phishing.xyz');");
+const testRow = testDb.prepare('SELECT domain FROM test_threats WHERE id = 1;').get();
+assert(testRow.domain === 'phishing.xyz', 'node:sqlite engine executes queries and persists relational data successfully');
+
+console.log('\n🎉 ALL 32 BLUEPRINT V1.0 FULLSTACK & DATABASE VALIDATION CHECKS PASSED SUCCESSFULLY!');

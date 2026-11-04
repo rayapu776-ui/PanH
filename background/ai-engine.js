@@ -135,7 +135,7 @@ export function generateRuleBasedTips(siteReport = {}) {
 /**
  * Query AI Privacy Advisor (Dual-Engine: Local Intelligence + Cloud LLM)
  */
-export async function queryAIAdvisor({ question, siteReport = {}, apiKey = '', modelPreference = 'auto' }) {
+export async function queryAIAdvisor({ question, siteReport = {}, apiKey = '', modelPreference = 'auto', serverUrl = 'http://localhost:3000' }) {
   const userQuery = (question || '').trim();
   if (!userQuery) return { answer: 'Please enter a privacy or tracking question.' };
 
@@ -143,7 +143,40 @@ export async function queryAIAdvisor({ question, siteReport = {}, apiKey = '', m
   conversationState.history.push({ role: 'user', content: userQuery });
   if (conversationState.history.length > 10) conversationState.history.shift();
 
-  // 1. Check if user configured Gemini API Key and requested Cloud LLM
+  // 1. Try Fullstack Backend Server if accessible (and not forced local_only)
+  if (modelPreference !== 'local_only' && serverUrl) {
+    try {
+      const serverRes = await fetch(`${serverUrl}/api/v1/ai/advise`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: userQuery,
+          siteDomain: siteReport.domain || '',
+          privacyScore: siteReport.score !== undefined ? siteReport.score : 100,
+          trackersBlocked: siteReport.trackersBlocked || 0,
+          adsBlocked: siteReport.adsBlocked || 0,
+          fingerprintCount: siteReport.fingerprintCount || 0,
+          apiKey: apiKey || undefined
+        })
+      });
+
+      if (serverRes.ok) {
+        const serverData = await serverRes.json();
+        if (serverData.advice) {
+          conversationState.history.push({ role: 'assistant', content: serverData.advice });
+          return {
+            answer: serverData.advice,
+            source: serverData.provider || 'panH Fullstack AI Gateway',
+            privacyAudit: 'Telemetry processed via panH Fullstack API Gateway.'
+          };
+        }
+      }
+    } catch (e) {
+      // Backend server not running or offline; proceed seamlessly to direct client AI / local
+    }
+  }
+
+  // 2. Direct Cloud LLM if user configured Gemini API Key in browser settings
   if (apiKey && apiKey.trim().length > 15 && modelPreference !== 'local_only') {
     try {
       const cloudResponse = await callGeminiLLM(userQuery, siteReport, apiKey);
@@ -156,11 +189,11 @@ export async function queryAIAdvisor({ question, siteReport = {}, apiKey = '', m
         };
       }
     } catch (err) {
-      console.warn('[panH AI Engine] Cloud LLM failed, seamlessly falling back to local intelligence:', err);
+      console.warn('[panH AI Engine] Cloud LLM request failed, falling back to local intelligence:', err);
     }
   }
 
-  // 2. Built-in Local AI Engine (Zero latency, 100% offline, privacy guaranteed)
+  // 3. Built-in Local AI Engine (Zero latency, 100% offline, privacy guaranteed)
   const localResponse = executeLocalAIEngine(userQuery, siteReport);
   conversationState.history.push({ role: 'assistant', content: localResponse });
 
@@ -233,16 +266,21 @@ Provide a clear, plain-language explanation and recommended action.`;
 function executeLocalAIEngine(question, siteReport) {
   const q = question.toLowerCase();
   const domain = siteReport.domain || 'this website';
-  const trackers = siteReport.trackersBlocked || 23;
-  const ads = siteReport.adsBlocked || 41;
-  const fpCount = siteReport.fingerprintCount || 1;
-  const firstParty = siteReport.firstPartyCount || 2;
-  const score = siteReport.score || 82;
+  const trackers = siteReport.trackersBlocked || 0;
+  const ads = siteReport.adsBlocked || 0;
+  const fpCount = siteReport.fingerprintCount || 0;
+  const firstParty = siteReport.firstPartyCount || 0;
+  const score = siteReport.score !== undefined ? siteReport.score : 100;
 
   // Question: Why blocked?
-  if (q.includes('why blocked') || q.includes('adnet-x') || q.includes('tracker-a') || q.includes('reason') || q.includes('why was')) {
-    return `We blocked these requests because third-party ad networks (such as **adnet-x.com** and **pixel.tracker-a.io**) attempt to sync your device ID across multiple websites you visit. By severing their background scripts, **panH** stops data brokers from correlating your browsing habits into a commercial profile.\n\n` +
-      `🛡️ **Action**: Your session is protected. No action is required.`;
+  if (q.includes('why blocked') || q.includes('reason') || q.includes('why was') || q.includes('intercepted')) {
+    if (siteReport.recentDomains && siteReport.recentDomains.length > 0) {
+      const sampleNames = siteReport.recentDomains.slice(0, 3).map(d => d.domain).join(', ');
+      return `We blocked requests from **${sampleNames}** on **${domain}** because they attempt to sync cross-site tracking cookies and telemetry identifiers. By stopping their background scripts, **panH** prevents third parties from building a profile of your activity.\n\n` +
+        `🛡️ **Status**: Protected. Your browsing session remains shielded.`;
+    }
+    return `On **${domain}**, panH's declarative filtering is actively monitoring all network requests. Currently, ${trackers > 0 || ads > 0 ? `we have blocked ${trackers} tracking scripts and ${ads} ads.` : 'no unauthorized telemetry scripts have attempted tracking on this page.'}\n\n` +
+      `🛡️ **Status**: Safe and clean connection.`;
   }
 
   // Question: Fingerprinting

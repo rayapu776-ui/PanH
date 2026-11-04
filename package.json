@@ -4,7 +4,12 @@
   "description": "Privacy & Anonymity Network Hub - Browser Extension (Manifest V3)",
   "main": "background/service-worker.js",
   "scripts": {
-    "test": "node test/validate.js"
+    "test": "node test/validate.js",
+    "dev": "nodemon",
+    "dev:watch": "node --watch server/index.js",
+    "server": "node server/index.js",
+    "server:dev": "nodemon",
+    "start": "node server/index.js"
   },
   "keywords": [
     "privacy",
@@ -16,6 +21,8 @@
     "manifest-v3"
   ],
   "author": "VijetaX (Apu Ray, Nancy, Prottoy Sarker, Hasontika Roy - Sharda University)",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
 }
-
