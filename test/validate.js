@@ -94,6 +94,10 @@ assert(fs.existsSync(path.join(ROOT, 'server', 'db.js')), 'server/db.js SQLite d
 assert(fs.existsSync(path.join(ROOT, 'server', 'ai-service.js')), 'server/ai-service.js provider-independent AI orchestrator exists');
 assert(fs.existsSync(path.join(ROOT, 'server', 'knowledge.js')), 'server/knowledge.js RAG knowledge base exists');
 assert(fs.existsSync(path.join(ROOT, 'server', '.env.example')), 'server/.env.example template exists for AI API key configuration');
+assert(fs.existsSync(path.join(ROOT, '.env.example')), 'Root .env.example safe template exists');
+assert(fs.existsSync(path.join(ROOT, 'backend', '.env.example')), 'backend/.env.example safe template exists');
+assert(fs.existsSync(path.join(ROOT, 'ai-service', '.env.example')), 'ai-service/.env.example safe template exists');
+assert(fs.existsSync(path.join(ROOT, 'scripts', 'scan-secrets.js')), 'scripts/scan-secrets.js automated secret scanner exists');
 assert(fs.existsSync(path.join(ROOT, 'nodemon.json')), 'nodemon.json exists for hot-reloading development');
 
 // 10. Functional test of SQLite database layer
@@ -102,4 +106,4 @@ testDb.exec("CREATE TABLE test_threats (id INTEGER PRIMARY KEY, domain TEXT); IN
 const testRow = testDb.prepare('SELECT domain FROM test_threats WHERE id = 1;').get();
 assert(testRow.domain === 'phishing.xyz', 'node:sqlite engine executes queries and persists relational data successfully');
 
-console.log('\n🎉 ALL 36 BLUEPRINT V1.0 FULLSTACK & DATABASE VALIDATION CHECKS PASSED SUCCESSFULLY!');
+console.log('\n🎉 ALL 40 BLUEPRINT V1.0 FULLSTACK & DATABASE VALIDATION CHECKS PASSED SUCCESSFULLY!');

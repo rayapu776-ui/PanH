@@ -1,0 +1,30 @@
+name: panH Security & Secret Scanning
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  secret-scan:
+    name: Automated Secret & Environment Protection
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run panH Secret Scanner
+        run: node scripts/scan-secrets.js
+
+      - name: Run Extension & Database Validation
+        run: node test/validate.js
+
+      - name: Run panH AI Evaluation Test Suite
+        run: node test/ai-eval.js
