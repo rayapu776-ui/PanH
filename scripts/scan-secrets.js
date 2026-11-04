@@ -95,3 +95,4 @@ if (violations.length > 0) {
   console.log('🎉 Repository is safe and compliant with panH AI Security Standards!\n');
   process.exit(0);
 }
+

@@ -49,28 +49,33 @@ import { retrieveKnowledge } from './knowledge.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load .env file if present
+// Load .env file securely from root or server directory
 function loadEnv() {
-  const envPath = path.join(__dirname, '.env');
-  if (fs.existsSync(envPath)) {
-    try {
-      const content = fs.readFileSync(envPath, 'utf8');
-      content.split('\n').forEach(line => {
-        const trimmed = line.trim();
-        if (trimmed && !trimmed.startsWith('#')) {
-          const eqIdx = trimmed.indexOf('=');
-          if (eqIdx !== -1) {
-            const key = trimmed.slice(0, eqIdx).trim();
-            const val = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, '');
-            if (!process.env[key]) {
-              process.env[key] = val;
+  const rootEnvPath = path.resolve(__dirname, '..', '.env');
+  const serverEnvPath = path.join(__dirname, '.env');
+  const candidatePaths = [rootEnvPath, serverEnvPath];
+
+  for (const envPath of candidatePaths) {
+    if (fs.existsSync(envPath)) {
+      try {
+        const content = fs.readFileSync(envPath, 'utf8');
+        content.split('\n').forEach(line => {
+          const trimmed = line.trim();
+          if (trimmed && !trimmed.startsWith('#')) {
+            const eqIdx = trimmed.indexOf('=');
+            if (eqIdx !== -1) {
+              const key = trimmed.slice(0, eqIdx).trim();
+              const val = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, '');
+              if (!process.env[key]) {
+                process.env[key] = val;
+              }
             }
           }
-        }
-      });
-      console.log('[panH Server] Environment variables loaded from server/.env');
-    } catch (e) {
-      console.warn('[panH Server] Could not read .env file:', e.message);
+        });
+        console.log(`[panH Server] Environment variables loaded securely from ${path.basename(envPath)}`);
+      } catch (e) {
+        console.warn(`[panH Server] Could not read ${envPath}:`, e.message);
+      }
     }
   }
 }
