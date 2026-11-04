@@ -207,15 +207,21 @@ export function assessUrl(rawUrl, siteAllowList = [], siteBlockList = []) {
     reasons.push(`Domain pairs sensitive keyword '${matchedKeywords[0]}' with disposable TLD`);
   }
 
-  // Subdomain depth deception (e.g. paypal.com.account-verify.net)
+  // Brand impersonation in domain or subdomain (e.g. paypal-security-update.top or paypal.com.verify.net)
+  const targetBrands = ['paypal', 'netflix', 'amazon', 'google', 'microsoft', 'apple', 'chase', 'wellsfargo', 'coinbase', 'binance'];
+  for (const brand of targetBrands) {
+    if (hostname.includes(brand) && !hostname.endsWith(`.${brand}.com`) && hostname !== `${brand}.com` && !hostname.endsWith(`.${brand}.net`)) {
+      riskScore += 45;
+      reasons.push(`High-probability brand impersonation targeting "${brand}"`);
+      break;
+    }
+  }
+
+  // Subdomain depth deception (e.g. login.secure.verify.account.net)
   const parts = hostname.split('.');
   if (parts.length > 3) {
-    const brandSpoof = ['paypal', 'google', 'apple', 'microsoft', 'amazon', 'netflix', 'chase', 'wellsfargo'];
-    const matchedBrand = brandSpoof.find(b => parts.slice(0, -2).some(p => p.includes(b)));
-    if (matchedBrand) {
-      riskScore += 50;
-      reasons.push(`Possible brand impersonation spoofing '${matchedBrand}' in subdomain hierarchy`);
-    }
+    riskScore += 20;
+    reasons.push(`Excessive subdomain nesting depth (${parts.length} levels)`);
   }
 
   // Suspicious query tokens in URL

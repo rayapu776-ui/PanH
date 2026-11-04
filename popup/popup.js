@@ -145,8 +145,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       whyBlockedTextEl.textContent = `No cross-site trackers or threats detected on this page. Ask advisor`;
     }
 
-    if (settings.geminiApiKey) {
-      drawerModelPill.textContent = 'Gemini AI';
+    if (settings.aiThreatDetection !== false) {
+      drawerModelPill.textContent = 'panH AI';
       drawerModelPill.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
       drawerModelPill.style.color = '#22C55E';
     }

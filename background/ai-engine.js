@@ -137,42 +137,55 @@ export function generateRuleBasedTips(siteReport = {}) {
  */
 export async function queryAIAdvisor({ question, siteReport = {}, apiKey = '', modelPreference = 'auto', serverUrl = 'http://localhost:3000' }) {
   const userQuery = (question || '').trim();
-  if (!userQuery) return { answer: 'Please enter a privacy or tracking question.' };
+  if (!userQuery) return { answer: 'Please enter a question or security inquiry.', source: 'panH AI' };
 
-  // Save to conversation history
+  // Save to multi-turn conversation history
+  const recentHistory = [...conversationState.history];
   conversationState.history.push({ role: 'user', content: userQuery });
   if (conversationState.history.length > 10) conversationState.history.shift();
 
   // 1. Try Fullstack Backend Server if accessible (and not forced local_only)
   if (modelPreference !== 'local_only' && serverUrl) {
     try {
-      const serverRes = await fetch(`${serverUrl}/api/v1/ai/advise`, {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+      const serverRes = await fetch(`${serverUrl}/api/v1/ai/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           question: userQuery,
-          siteDomain: siteReport.domain || '',
-          privacyScore: siteReport.score !== undefined ? siteReport.score : 100,
-          trackersBlocked: siteReport.trackersBlocked || 0,
-          adsBlocked: siteReport.adsBlocked || 0,
-          fingerprintCount: siteReport.fingerprintCount || 0,
-          apiKey: apiKey || undefined
-        })
+          context: {
+            domain: siteReport.domain || '',
+            score: siteReport.score !== undefined ? siteReport.score : 100,
+            trackersBlocked: siteReport.trackersBlocked || 0,
+            adsBlocked: siteReport.adsBlocked || 0,
+            fingerprintCount: siteReport.fingerprintCount || 0
+          },
+          history: recentHistory,
+          modePreference: modelPreference
+        }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (serverRes.ok) {
         const serverData = await serverRes.json();
-        if (serverData.advice) {
-          conversationState.history.push({ role: 'assistant', content: serverData.advice });
+        const ans = serverData.data?.answer || serverData.answer || serverData.advice;
+        if (ans) {
+          conversationState.history.push({ role: 'assistant', content: ans });
           return {
-            answer: serverData.advice,
-            source: serverData.provider || 'panH Fullstack AI Gateway',
-            privacyAudit: 'Telemetry processed via panH Fullstack API Gateway.'
+            answer: ans,
+            source: 'panH AI',
+            activeMode: serverData.data?.active_mode || 'panH AI (Secure Gateway)',
+            confidence: serverData.data?.confidence || 0.95,
+            privacyAudit: 'Processed through panH Secure Gateway under zero-history policy.'
           };
         }
       }
     } catch (e) {
-      // Backend server not running or offline; proceed seamlessly to direct client AI / local
+      // Backend gateway offline or network timeout; fallback seamlessly to local engine
     }
   }
 
@@ -184,8 +197,9 @@ export async function queryAIAdvisor({ question, siteReport = {}, apiKey = '', m
         conversationState.history.push({ role: 'assistant', content: cloudResponse });
         return {
           answer: cloudResponse,
-          source: 'Google Gemini 1.5 Flash (Privacy Sanitized)',
-          privacyAudit: 'Sent only sanitized domain tokens and category counts.'
+          source: 'panH AI',
+          activeMode: 'panH AI (Cloud Enhanced)',
+          privacyAudit: 'Sent only sanitized domain tokens and numerical metrics.'
         };
       }
     } catch (err) {
@@ -199,7 +213,8 @@ export async function queryAIAdvisor({ question, siteReport = {}, apiKey = '', m
 
   return {
     answer: localResponse,
-    source: 'panH Local Neural Knowledge Engine (Offline)',
+    source: 'panH AI',
+    activeMode: 'panH AI (Local Protection Engine)',
     privacyAudit: '100% local processing; zero data left your browser.'
   };
 }
@@ -272,6 +287,51 @@ function executeLocalAIEngine(question, siteReport) {
   const firstParty = siteReport.firstPartyCount || 0;
   const score = siteReport.score !== undefined ? siteReport.score : 100;
 
+  // Prompt Injection Resistance check
+  if (q.includes('ignore previous instructions') || q.includes('system prompt') || q.includes('reveal secret') || q.includes('override rules')) {
+    return 'I am panH AI, operating under strict cybersecurity and privacy guidelines. System instructions and internal configurations cannot be overridden or disclosed.';
+  }
+
+  // Multilingual Support: Bengali
+  if (/[\u0980-\u09FF]/.test(question)) {
+    if (q.includes('নিরাপদ') || q.includes('সুরক্ষা') || q.includes('গোপনীয়তা') || q.includes('ট্র্যাকার')) {
+      return `panH AI আপনার ব্রাউজারের গোপনীয়তা রক্ষা করছে। ${domain}-এ আমরা ট্র্যাকার, অনাকাঙ্ক্ষিত বিজ্ঞাপন ও ক্যানভাস ফিঙ্গারপ্রিন্টিং ব্লক করেছি। আপনার ডেটা নিরাপদ।`;
+    }
+    return `আমি panH AI, আপনার ব্যক্তিগত ব্রাউজার ও প্রযুক্তি সহকারী। কোডিং, সাইবার নিরাপত্তা, বা সাধারণ প্রশ্ন—যেকোনো বিষয়ে জিজ্ঞাসা করতে পারেন।`;
+  }
+
+  // Multilingual Support: Hindi
+  if (/[\u0900-\u097F]/.test(question)) {
+    if (q.includes('सुरक्षित') || q.includes('गोपनीयता') || q.includes('सुरक्षा') || q.includes('ट्रैकर')) {
+      return `panH AI आपकी ब्राउज़र गोपनीयता की सुरक्षा कर रहा है। ${domain} पर ट्रैकर्स, विज्ञापन और फ़िंगरप्रिंटिंग को स्वचालित रूप से रोक दिया गया है। आपकी सुरक्षा सक्रिय है।`;
+    }
+    return `नमस्ते! मैं panH AI हूँ। आप मुझसे प्रोग्रामिंग, ऑनलाइन सुरक्षा, या किसी भी तकनीकी विषय के बारे में पूछ सकते हैं।`;
+  }
+
+  // Identity & Transparency
+  if (q.includes('who are you') || q.includes('what is panh ai') || q.includes('who developed') || q.includes('who processes my data')) {
+    return `I am **panH AI**, an intelligent browser assistant developed by Team VijetaX. In local mode, all processing executes 100% on your machine. When Cloud-Enhanced mode is active, privacy-sanitized queries are evaluated via secure enterprise AI infrastructure under our zero-history privacy policy.`;
+  }
+
+  // Programming & Software Development
+  if (q.includes('javascript') || q.includes('python') || q.includes('function') || q.includes('code') || q.includes('sql') || q.includes('programming')) {
+    return `**panH AI Engineering Assistant**:\nI can assist with software engineering and secure coding practices.\n\n• **Security Best Practice**: Always sanitize untrusted input to defend against XSS, and use parameterized queries for SQL.\n• **Modern JS**: Prefer \`const\`/\`let\`, async/await, and native \`crypto.getRandomValues\`.\n\nFeel free to ask for specific code examples or debugging assistance!`;
+  }
+
+  // Mathematics & Computation
+  if (/\b\d+\s*[\+\-\*\/]\s*\d+\b/.test(q)) {
+    try {
+      const match = q.match(/(\d+(?:\.\d+)?)\s*([\+\-\*\/])\s*(\d+(?:\.\d+)?)/);
+      if (match) {
+        const num1 = parseFloat(match[1]);
+        const op = match[2];
+        const num2 = parseFloat(match[3]);
+        let res = op === '+' ? num1 + num2 : (op === '-' ? num1 - num2 : (op === '*' ? num1 * num2 : (num2 !== 0 ? num1 / num2 : 'Undefined (division by zero)')));
+        return `Calculation result: **${num1} ${op} ${num2} = ${res}**`;
+      }
+    } catch (e) {}
+  }
+
   // Question: Why blocked?
   if (q.includes('why blocked') || q.includes('reason') || q.includes('why was') || q.includes('intercepted')) {
     if (siteReport.recentDomains && siteReport.recentDomains.length > 0) {
@@ -334,6 +394,6 @@ function executeLocalAIEngine(question, siteReport) {
 
   // General fallback
   return `On **${domain}**, panH has neutralized **${trackers} trackers** and **${ads} ads**. Your browser fingerprint is masked with micro-noise, and outbound links are stripped of tracking tags.\n\n` +
-    `Ask me anything about specific trackers, fingerprinting, or how to secure your search and email!`;
+    `I can assist with cybersecurity questions, coding, technical troubleshooting, or general topics. What would you like to explore?`;
 }
 

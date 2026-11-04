@@ -10,19 +10,29 @@
     'ins.adsbygoogle',
     'div[id*="google_ads"]',
     'div[id*="dfp-ad"]',
+    'div[id*="gpt-ad"]',
     'div[class*="ad-container"]',
     'div[class*="ad-slot"]',
     'div[class*="ad-banner"]',
     'div[class*="banner-ad"]',
     'div[class*="sponsored-post"]',
     'div[class*="promoted-tweet"]',
+    'div[class*="sponsor-box"]',
+    'div[class*="ad-placeholder"]',
+    'div[class*="ad_wrapper"]',
+    'div[class*="ad-wrapper"]',
     'div[id*="taboola-"]',
     'div[id*="outbrain-"]',
+    'div[id*="rc-widget"]',
     'div[data-ad-unit]',
+    'div[data-ad-name]',
+    'div[data-ad-client]',
+    'aside[class*="ad-"]',
     'iframe[src*="doubleclick"]',
     'iframe[src*="adnxs"]',
     'iframe[src*="criteo"]',
-    'iframe[id*="google_ads"]'
+    'iframe[id*="google_ads"]',
+    'iframe[src*="amazon-adsystem"]'
   ];
 
   function hideAdElements() {

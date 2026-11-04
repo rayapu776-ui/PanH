@@ -68,6 +68,14 @@ body {
   align-items: center;
   gap: 12px;
   border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease;
+}
+
+.sidebar-brand:hover {
+  background-color: var(--bg-hover);
+}
 }
 
 .brand-logo {

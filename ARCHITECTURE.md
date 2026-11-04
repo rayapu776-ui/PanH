@@ -247,3 +247,48 @@ CREATE TABLE threat_indicator (
 );
 ```
 
+---
+
+## 7. panH AI Platform & Provider-Independent Architecture
+
+### 7.1 Multi-Layer AI Orchestration
+```
+┌────────────────────────────────────────────────────────┐
+│                   Browser Extension UI                 │
+│      (Dashboard Chat, Popup Drawer, Link Scanner)      │
+└───────────────────────────┬────────────────────────────┘
+                            │ HTTPS / REST (Clean Brand API)
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│                panH API Secure Gateway                 │
+│         (GET /api/v1/ai/status, POST /chat)            │
+└───────────────────────────┬────────────────────────────┘
+                            │
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│             AI Orchestrator (ai-service.js)            │
+│  • Sliding-Window Rate Limiter (60 req/min)            │
+│  • Prompt Injection Shield & Token Stripper            │
+│  • Multilingual Detection (English, বাংলা, हिन्दी)     │
+│  • RAG Knowledge Retrieval (knowledge.js)              │
+│  • Multi-turn Conversation Context                     │
+└──────────────┬──────────────────────────┬──────────────┘
+               │                          │
+      Cloud Enhanced (Opt-In)    Local Protection Mode (Offline)
+               │                          │
+               ▼                          ▼
+┌──────────────────────────────┐ ┌───────────────────────┐
+│     Cloud Provider Adapter   │ │ panH Local Neural     │
+│ • Google Gemini (1.5 Flash)  │ │ Knowledge Engine      │
+│ • OpenAI (gpt-4o-mini)       │ │ • 100% On-Device      │
+│ • Secrets isolated in .env   │ │ • Zero Cloud Traffic  │
+└──────────────────────────────┘ └───────────────────────┘
+```
+
+### 7.2 Security, Prompt Injection & Privacy Guarantees
+1. **Zero Raw Browsing History**: No page contents, passwords, or navigation histories are transmitted.
+2. **Untrusted Data Isolation**: All webpage tokens and external feeds are encapsulated in `<untrusted_content>` tags.
+3. **Prompt Injection Resistance**: Tokenizer control tags (`<|im_start|>`, `[INST]`) and system instruction override attempts are stripped and rejected.
+4. **Transparency**: The AI truthfully discloses whether Cloud-Enhanced mode or Local Protection mode is currently active.
+
+

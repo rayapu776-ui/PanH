@@ -6,6 +6,7 @@
   <title>panH - Privacy Guardian</title>
   <link rel="stylesheet" href="popup.css">
   <script src="../shared/panh-polyfill.js"></script>
+  <script type="module" src="../shared/config.js"></script>
 </head>
 <body>
   <div class="popup-container">
@@ -40,15 +41,15 @@
           <circle class="score-fill" id="scoreCircleFill" cx="50" cy="50" r="42" />
         </svg>
         <div class="score-number-wrapper">
-          <span class="score-value" id="siteScoreValue">82</span>
+          <span class="score-value" id="siteScoreValue">--</span>
         </div>
       </div>
       <div class="score-info">
         <div class="rating-badge-row">
-          <h2 class="score-rating" id="siteScoreRating">Protected</h2>
-          <span class="status-pill" id="siteStatusPill">Protected</span>
+          <h2 class="score-rating" id="siteScoreRating">Analyzing</h2>
+          <span class="status-pill" id="siteStatusPill">Standby</span>
         </div>
-        <p class="site-hostname" id="siteHostname">news-site.com</p>
+        <p class="site-hostname" id="siteHostname">Detecting tab...</p>
         <span class="methodology-label">Methodology: Local Signal Audit (0-100)</span>
       </div>
     </section>
@@ -62,7 +63,7 @@
           </svg>
           <span>Trackers blocked</span>
         </div>
-        <span class="metric-badge badge-trackers" id="trackersCount">23</span>
+        <span class="metric-badge badge-trackers" id="trackersCount">0</span>
       </div>
 
       <div class="metric-row">
@@ -73,7 +74,7 @@
           </svg>
           <span>Ads blocked</span>
         </div>
-        <span class="metric-badge badge-ads" id="adsCount">41</span>
+        <span class="metric-badge badge-ads" id="adsCount">0</span>
       </div>
 
       <div class="metric-row">
@@ -85,7 +86,7 @@
           </svg>
           <span>Suspicious requests</span>
         </div>
-        <span class="metric-badge badge-threats" id="suspiciousCount">3</span>
+        <span class="metric-badge badge-threats" id="suspiciousCount">0</span>
       </div>
 
       <div class="metric-row">
@@ -96,7 +97,7 @@
           </svg>
           <span>First-party tracking</span>
         </div>
-        <span class="metric-badge badge-firstparty" id="firstPartyCount">2 found</span>
+        <span class="metric-badge badge-firstparty" id="firstPartyCount">0 found</span>
       </div>
     </section>
 
@@ -171,7 +172,7 @@
         <strong>Why blocked?</strong>
         <span class="ai-sparkle">✨ AI Advisor</span>
       </div>
-      <p class="why-blocked-text" id="whyBlockedText">adnet-x.com tried to follow you across sites. Ask advisor</p>
+      <p class="why-blocked-text" id="whyBlockedText">Analyzing active tab privacy signals... Ask advisor</p>
       <div class="why-actions-row">
         <button class="why-advisor-link" id="btnAskAdvisor">Ask AI Advisor &rarr;</button>
         <button class="btn-quick-fix" id="btnQuickFix" title="Apply recommended AI protections">1-Click AI Fix</button>

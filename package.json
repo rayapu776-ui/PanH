@@ -2,9 +2,12 @@
   "name": "panh-extension",
   "version": "1.0.0",
   "description": "Privacy & Anonymity Network Hub - Browser Extension (Manifest V3)",
+  "type": "module",
   "main": "background/service-worker.js",
   "scripts": {
-    "test": "node test/validate.js",
+    "test": "node test/validate.js && node test/ai-eval.js",
+    "test:unit": "node test/validate.js",
+    "test:ai": "node test/ai-eval.js",
     "dev": "nodemon",
     "dev:watch": "node --watch server/index.js",
     "server": "node server/index.js",
